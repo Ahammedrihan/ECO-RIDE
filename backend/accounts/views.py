@@ -11,6 +11,8 @@ from rest_framework.permissions import IsAuthenticated
 
 
 
+
+
 # Function to generate token manually
 def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
@@ -23,11 +25,13 @@ def get_tokens_for_user(user):
 class UserRegistrationView(APIView):
     renderer_classes = [CustomUserRenderer]
     def post(self,request,format=None):
+        print(request.data)
         serializer = UserRegistrationSerializer(data=request.data)
+        print(serializer)
         if serializer.is_valid(raise_exception=True):
             user = serializer.save()
             return Response({'msg':"reg sucess"},status=status.HTTP_201_CREATED)
-         
+        print(serializer.error_messages)
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
 

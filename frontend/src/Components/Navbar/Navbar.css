@@ -1,0 +1,16 @@
+/* styles.css */
+.glossy-navbar {
+    background-color: rgb(0, 0, 0);
+    background-image: linear-gradient(to bottom, rgb(0, 0, 0), rgba(48, 40, 40, 0));
+    border-bottom: 1px solid rgba(0, 0, 0,);
+    box-shadow: 0px 0px 0px 0px rgba(0, 0, 0,);
+    color: rgb(0, 0, 0);
+  }
+  
+  .glossy-navbar .nav-link {
+    color: white;
+  }
+  
+  .glossy-navbar .nav-link:hover {
+    color: #888374; /* Change the color when hovering over the links */
+  }
