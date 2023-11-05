@@ -8,7 +8,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(style = {'input_type':'password'},write_only = True)
     class Meta:
         model = CustomUser
-        fields = ['email','first_name','last_name','password','password2','phone_number']
+        fields = ['email','first_name','last_name','phone','password','password2']
         extra_kwargs ={
             'password':{'write_only':True}
         }    
@@ -63,3 +63,13 @@ class UserChangePasswordSerializer(serializers.ModelSerializer):
         user.save()
         return attrs
       
+
+
+
+# <===============================ADMIN SIDE ====================================>
+
+class UserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = CustomUser
+        fields = '__all__'

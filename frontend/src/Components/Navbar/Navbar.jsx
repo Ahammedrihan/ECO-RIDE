@@ -14,15 +14,36 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 import { Link } from 'react-router-dom';
+import { useSelector } from "react-redux";
+import Store from '../../../Redux/store/store';
+import { selectUser } from '../../../Redux/slices/userSlice/authSlice';
+
 
 const pages = ['Register', 'Pricing', 'Blog'];
-// const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
-const settings = [
-  { id: 1, text: 'Profile', path: '/register' },
-  { id: 2, text: 'Logout', path: '/login' },
-];
+
+
+
+
+
+
 
 function Navbar() {
+  const user = useSelector(selectUser);
+
+  let settings = [];
+
+  if (user) {
+    settings = [
+      { id: 1, text: 'Profile', path: '/profile' },
+      { id: 2, text: 'Logout', path: '/login' },
+    ];
+  } else {
+    settings = [
+      { id: 1, text: 'register', path: '/register' },
+      { id: 2, text: 'Login', path: '/login' },
+    ];
+  }
+  
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
 
@@ -42,10 +63,10 @@ function Navbar() {
   };
 
   return (
-    <AppBar position="static">
+    <AppBar position="static" sx={{ backgroundColor: 'black' }}>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
+          {/* <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} /> */}
           <Typography
             variant="h6"
             noWrap
@@ -100,7 +121,7 @@ function Navbar() {
               ))}
             </Menu>
           </Box>
-          <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
+          {/* <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} /> */}
           <Typography
             variant="h5"
             noWrap
@@ -117,7 +138,7 @@ function Navbar() {
               textDecoration: 'none',
             }}
           >
-            LOGO
+            eco-ride
           </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
             {pages.map((page) => (
@@ -152,6 +173,7 @@ function Navbar() {
               }}
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
+              
             >
               {settings.map((setting) => (
                 

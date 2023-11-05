@@ -53,11 +53,12 @@ export default function SignUp() {
     }).then((result) => {
       if (result.isConfirmed) {
         const formData = new FormData();
-        formData.append('firstName', firstName);
-        formData.append('lastName', lastName);
+        formData.append('first_name', firstName); // name should be same as serializer
+        formData.append('last_name', lastName);
         formData.append('email', email);
+        formData.append('phone',fullPhone );
         formData.append('password', password);
-        formData.append('confirmpassword', confirmPassword);
+        formData.append('password2', confirmPassword);
        
         console.log(formData.email)
 
@@ -75,6 +76,7 @@ export default function SignUp() {
               }).then(() => {
                 // redirect to login after success
                 console.log("helloooo")
+                navigate('/')
                 
               });
             } else {

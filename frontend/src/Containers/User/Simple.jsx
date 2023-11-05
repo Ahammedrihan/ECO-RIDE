@@ -4,6 +4,7 @@ import validator from 'validator';
 const Simple = () => {
   const [emailError, setEmailError] = useState('');
   const [phoneError, setPhoneError] = useState('');
+  console.log("lkjb;fnda;l")
 
   // Email Validation
   const validateEmail = (e) => {

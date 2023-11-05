@@ -14,75 +14,88 @@ import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Navigate, useNavigate } from 'react-router-dom';
 import {useDispatch ,useSelector} from 'react-redux'
-import axios from '../../Utils/axios'
+import axios from '../../../Utils/axios';
 import jwt_decode from 'jwt-decode'
-import { userLoginUrl } from '../../Utils/urls';
-import { userLogin } from '../../../Redux/slices/userSlice/authSlice';
+import { userLoginUrl } from '../../../Utils/urls';
 import Swal from "sweetalert2";
+import {setAdminLoginCredentials} from '../../../../Redux/slices/adminSlice/adminauthSlice'
+import { useEffect } from 'react';
 
 
 
 
-
-function Copyright(props) {
-  return (
-    <Typography variant="body2" color="text.secondary" align="center" {...props}>
-      {'Copyright © '}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
-const defaultTheme = createTheme();
-
-
-
-export default function SignIn() {
+export default function AdminLogin() {
 
 
   const dispatch  = useDispatch()
   const navigate = useNavigate()
   const [email,setEmail] = React.useState("")
   const [password,setPassword] = React.useState("")
+  const {admin} = useSelector((state)=> state.adminauth)
+
+  useEffect (()=>{
+    const shouldNavigate = admin ;
+    if (shouldNavigate){
+        navigate("/admin/home");
+    }
+  },[navigate,admin]) 
+
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const data = JSON.stringify({
-      email,
-      password
-
-    })
+    const data = JSON.stringify({ email,password })
     axios.post(userLoginUrl,data ,{
       headers:{"Content-Type":"application/json"},
     })
     .then((response)=>{
-      if (response.status === 200){
-        Swal.fire({
-          title: 'Success!',
-          text: 'logged in',
-          icon: 'success'
-        })
-        const decodeUser = jwt_decode(response.data.access)
+        if (response.status === 200){
+           const decode_data = jwt_decode(response?.data?.access)
+          if (decode_data.is_superuser)
+           {
+          
+            dispatch(setAdminLoginCredentials({
+              adminAuthToken: decode_data
 
-        console.log(decodeUser.email,"jjjjjjjjjjjjjj")
-        dispatch(userLogin({user:decodeUser}))
-        navigate('/')
-        
+             
+                    }))  
+                    
+             navigate('/admin/home') 
+            Swal.fire({
+              title: 'Success!',
+              text: 'logged in admin',
+              icon: 'success'
+            })
+          }  
+           else{
+             Swal.fire({
+             title: 'fail!',
+             text: 'Login For Authorized Admins',
+             icon: 'error'
+          })
+
+        }
       }
-      else{
+        else{
         Swal.fire({
           title: 'Invalid Credentials!',
           text: 'Try Again',
           icon: 'error'
+          
         })
-    
+        navigate('/admin/login')
       }
+    
+      
+      
     }).catch((error) => {
-      console.log('Error occurred during login:', error.data);
+      console.log('Error occurred during login:', error);
     });
+    Swal.fire({
+          title: 'Invalid Credentials!',
+          text: 'Try Again',
+          icon: 'error'
+          
+        })
     
   };
 
@@ -164,4 +177,20 @@ export default function SignIn() {
     </ThemeProvider>
   );
 }
+
+
+function Copyright(props) {
+  return (
+    <Typography variant="body2" color="text.secondary" align="center" {...props}>
+      {'Copyright © '}
+      <Link color="inherit" href="https://mui.com/">
+        Your Website
+      </Link>{' '}
+      {new Date().getFullYear()}
+      {'.'}
+    </Typography>
+  );
+}
+const defaultTheme = createTheme();
+
 
