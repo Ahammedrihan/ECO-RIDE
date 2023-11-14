@@ -98,3 +98,13 @@
 
   /* Your other styles */
 
+  .sidebar {
+    /* other styles */
+    width: 250px; /* initial width of the sidebar */
+    transition: width 0.3s ease; /* add transition to width property */
+  }
+  
+  .search-container {
+    margin-right: 8px;
+    transition: margin-right 0.3s ease; /* add transition to margin-right property */
+  }

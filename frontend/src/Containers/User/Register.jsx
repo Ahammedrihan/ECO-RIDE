@@ -240,14 +240,16 @@ export default function SignUp() {
                   onChange={(e) => {
                     setPassword(e.target.value);
                         }}
-                  // inputProps={register("password", {
-                  //   required: true,
-                  //   pattern: /^(?=.\d)(?=.[a-z])(?=.*[A-Z]).{5,}$/,
-                  //   maxLength: 10,
-                  //   minLength: 5,
-                  // })}
+                  inputProps={register("password", {
+                    required: true,
+                    pattern: /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{5,10}$/,
+                    maxLength: 10,
+                    minLength: 5,
+                  })}
                 />
-                {/* {errors.password && errors.password.type === "required" && (
+                
+                {errors.password && errors.password.type === "required" && (
+                 
                   <p className="text-xs italic text-red-500">
                     Enter a Valid Password
                   </p>
@@ -267,7 +269,7 @@ export default function SignUp() {
                   <p className="text-xs italic text-red-500">
                     Minimum 5 Characters Required
                   </p>
-                )} */}
+                )}
               </Grid>
               <Grid item xs={12}>
                 <TextField
@@ -282,15 +284,15 @@ export default function SignUp() {
                   onChange={(e) => {
                     setConfirmPassword(e.target.value);
                         }}
-                  // inputProps={register("ConfirmPassword", {
-                  //   validate: (value) => value === watch("password"),
-                  // })}
+                  inputProps={register("ConfirmPassword", {
+                    validate: (value) => value === watch("password"),
+                  })}
                 />
-                  {/* {errors.ConfirmPassword && (
+                  {errors.ConfirmPassword && (
                     <p className="text-xs italic text-red-500 error-signup">
                       Passwords do not match
                     </p>
-                  )} */}
+                  )}
               </Grid>
               <Grid item xs={12}>
                 {/* <FormControlLabel

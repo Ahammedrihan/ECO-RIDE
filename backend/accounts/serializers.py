@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from accounts.models import CustomUser
+from accounts.models import CustomUser ,AccountInfo ,VehicleInfo
 from django.contrib.auth.hashers import check_password
 
 
@@ -23,6 +23,11 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data.pop('password2')
         return CustomUser.objects.create_user(**validated_data)
+    
+
+
+
+    
     
 
 
@@ -54,6 +59,8 @@ class UserChangePasswordSerializer(serializers.ModelSerializer):
         new_password2 = attrs.get('new_password2')
         user = self.context.get('user')
 
+      
+
         if not check_password(old_password,user.password):
             raise serializers.ValidationError("Old Password and Entered Password Doesn't Match")
             
@@ -62,6 +69,14 @@ class UserChangePasswordSerializer(serializers.ModelSerializer):
         user.set_password(new_password)
         user.save()
         return attrs
+    
+
+class AddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AccountInfo
+        fields = '__all__'
+
+    
       
 
 
@@ -73,3 +88,21 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = '__all__'
+
+
+
+class DriverSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = "address",  "alternate_phone", "dob" ,"city" , "district" , "gender" ,"state" ,"pin_code"
+
+
+
+# ======================Driver Side==========================>
+
+
+class AddVehicleSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = VehicleInfo
+        fields  = "__all__"

@@ -115,7 +115,7 @@ export default function Dashboard() {
             <Typography
               component="h1"
               variant="h6"
-              color="inherit"
+              color="dark"
               noWrap
               sx={{ flexGrow: 1 }}
             >
@@ -125,6 +125,7 @@ export default function Dashboard() {
               <Badge badgeContent={4} color="secondary">
                 <NotificationsIcon />
               </Badge>
+              <h1>hello</h1>
             </IconButton>
           </Toolbar>
         </AppBar>

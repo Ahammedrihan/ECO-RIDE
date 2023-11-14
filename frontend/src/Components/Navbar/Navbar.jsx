@@ -17,6 +17,8 @@ import { Link } from 'react-router-dom';
 import { useSelector } from "react-redux";
 import Store from '../../../Redux/store/store';
 import { selectUser } from '../../../Redux/slices/userSlice/authSlice';
+import { selectDriver } from '../../../Redux/slices/driverSlice/driverauthSlice';
+
 
 
 const pages = ['Register', 'Pricing', 'Blog'];
@@ -31,6 +33,8 @@ function Navbar() {
   const user = useSelector(selectUser);
 
   let settings = [];
+
+  
 
   if (user) {
     settings = [
@@ -179,7 +183,19 @@ function Navbar() {
                 
                   <Link to={setting.path} key={setting.id} style={{ textDecoration: 'none', color: 'inherit' }}>
                 <MenuItem  onClick={handleCloseUserMenu}>
-                  <Typography textAlign="center">{setting.text}</Typography>
+                  <Typography textAlign="center">   <Link to={setting.path} key={setting.id} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <MenuItem  onClick={handleCloseUserMenu}>
+                <Typography textAlign="center">
+
+        
+  {setting.text}
+</Typography>
+                </MenuItem>
+                </Link>
+                  
+                  
+                  
+                  </Typography>
                 </MenuItem>
                 </Link>
                 
