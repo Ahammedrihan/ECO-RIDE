@@ -95,10 +95,10 @@ const DriverSideBar = () => {
             <Toolbar />
             <List>
               <NavLink
-                // to="/profile"
+                 to="/driver/profile"
                 style={{ textDecoration: "none", color: "inherit" }}
               >
-                {" "}
+          
                 <ListItemButton disablePadding>
                   <ListItemIcon>
                     <AccountCircleIcon />
@@ -109,10 +109,10 @@ const DriverSideBar = () => {
             </List>
             <List>
               <NavLink
-                // to="/"
+                to="/driver/add-driver-vehicle"
                 style={{ textDecoration: "none", color: "inherit" }}
               >
-                {" "}
+            
                 <ListItemButton disablePadding>
                   <ListItemIcon>
                     <DriveEtaIcon />
@@ -123,10 +123,10 @@ const DriverSideBar = () => {
             </List>
             <List>
               <NavLink
-                // to="/address"
+                 to="/add-driver-vehicle"
                 style={{ textDecoration: "none", color: "inherit" }}
               >
-                {" "}
+           
                 <ListItemButton disablePadding>
                   <ListItemIcon>
                     <MailIcon />
@@ -140,7 +140,7 @@ const DriverSideBar = () => {
                 // to="/reset-password"
                 style={{ textDecoration: "none", color: "inherit" }}
               >
-                {" "}
+              
                 <ListItemButton disablePadding>
                   <ListItemIcon>
                     <AccountCircleIcon />
@@ -154,7 +154,7 @@ const DriverSideBar = () => {
                 // to="/address"
                 style={{ textDecoration: "none", color: "inherit" }}
               >
-                {" "}
+               
                 <ListItemButton disablePadding>
                   <ListItemIcon>
                     <AccountCircleIcon />

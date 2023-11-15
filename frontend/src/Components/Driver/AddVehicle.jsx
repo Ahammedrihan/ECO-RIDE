@@ -25,7 +25,8 @@ const  AddVehicle= (props) => {
   // const userStoreDataFetch = useSelector((state) => state.authuser.userData);
   // const user_id = userStoreDataFetch.user.user_id;
   // const userAccessToken = userStoreDataFetch.data.access;
-  
+
+ 
   const [formData, setFormData] = useState({
     user : user_id,
     regtration_number: "",
@@ -40,7 +41,10 @@ const  AddVehicle= (props) => {
     mileage:"",
     vehicle_image1:"",
   });
-
+  useEffect(()=>{
+    
+  },[formData])
+  
   
   const handleInputChange = (event) => {
 
@@ -66,12 +70,13 @@ const  AddVehicle= (props) => {
         Authorization: `Bearer ${userAccessToken}`
       }
     }).then((response) => {
-      if (response.status === 200) {
+      if (response.status === 201) {
         Swal.fire({
           title: 'Success!',
           text: 'The user details have been updated.',
           icon: 'success'
         })
+        window.location.reload();
       } else {
         console.log(response.error);
         Swal.fire({
@@ -114,12 +119,31 @@ const  AddVehicle= (props) => {
               </Row>
 
               <Row>
-                <Col onSubmit={6} className="mb-3">
+                {/* <Col onSubmit={6} className="mb-3">
                   <Form.Group controlId="vehicleNumber">
                     <Form.Label>Vehicle Number</Form.Label>
                     <Form.Control required type="text" placeholder="Number" name="regtration_number" onChange={handleInputChange} />
                   </Form.Group>
-                </Col>
+                </Col> */}
+
+                <Col sm={6} className="mb-3">
+  <Form.Group controlId="vehicleNumber">
+    <Form.Label>Vehicle Number</Form.Label>
+    <Form.Control
+      required
+      type="text"
+      placeholder="Number"
+      name="regtration_number"
+      onChange={handleInputChange}
+      pattern="[A-Za-z]{2}[0-9]{2}[A-Za-z]{1,2}[0-9]{4}"
+      title="Please enter a valid vehicle registration number"
+    />
+    <Form.Text className="text-muted">
+      Format: AB12CD3456 (example)
+    </Form.Text>
+  </Form.Group>
+</Col>
+
 
                 
                 <Col sm={6} className="mb-3">

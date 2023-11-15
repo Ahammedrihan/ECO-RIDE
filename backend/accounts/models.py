@@ -84,6 +84,7 @@ class AccountInfo(models.Model):
     about = models.TextField(null=True, default=None, blank=True)
     lattitude =models.DecimalField(max_digits=30, decimal_places=20)
     longitude =models.DecimalField(max_digits=30, decimal_places=20)
+    profile_image = models.ImageField(upload_to="profile_images/",default="profile_images/download(2).png",blank=True, null=True)
     
 
 

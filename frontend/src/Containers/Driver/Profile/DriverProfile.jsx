@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import {useSelector} from "react-redux"
 import {
   MDBCol,
   MDBContainer,
@@ -18,14 +19,34 @@ import {
   
 } from 'mdb-react-ui-kit';
 import DriverSideBar from '../../../Components/Driver/driverSidebar';
+import axios from "../../../Utils/axios"
+
+
+
 
 export default function DriverProfile() {
+
+  const [driverProfile,setDriverProfile] = useState(null);
+  const driverStoreData = useSelector((state) => state.driverauth.driverData);
+  const driver_id  = driverStoreData.driver.user_id;
+  const driverAccessToken = driverStoreData.data.access;
+
+
+
+  
+  
   return (
+
     <section style={{ backgroundColor: '#eee' }}>
-     
-      <MDBContainer className="p-5">
-      <div style={{ display: 'flex'}}>
-        <DriverSideBar/>
+     <MDBContainer className="pt-5">
+     <div style={{ display: 'flex'}}>
+     <div className="container-fluid">
+      <div className="row">
+       <div className="col-md-3">
+         <DriverSideBar />
+       </div>
+      <div className="col-md-9">
+  
         {/* <MDBRow>
           <MDBCol>
             <MDBBreadcrumb className="bg-light rounded-3 p-3 mb-4">
@@ -53,8 +74,7 @@ export default function DriverProfile() {
                 <p className="text-muted mb-1">Full Stack =Developer</p>
                 <p className="text-muted mb-4">Bay Area, San Francisco, CA</p>
                 <div className="d-flex justify-content-center mb-2">
-                  <MDBBtn>Follow</MDBBtn>
-                  <MDBBtn outline className="ms-1">Message</MDBBtn>
+                  <MDBBtn>Edit Profile</MDBBtn>
                 </div>
               </MDBCardBody>
             </MDBCard>
@@ -86,7 +106,7 @@ export default function DriverProfile() {
               </MDBCardBody>
             </MDBCard> */}
           </MDBCol>
-          <MDBCol lg="6">
+          <MDBCol md="6"  lg="9">
             <MDBCard className="mb-4">
               <MDBCardBody>
                 <MDBRow>
@@ -140,9 +160,15 @@ export default function DriverProfile() {
           </MDBCol>
         </MDBRow>
         </div>
-      </MDBContainer>
      
+      </div>
+  </div>
+</div>
+</MDBContainer>
+
 
     </section>
   );
 }
+
+

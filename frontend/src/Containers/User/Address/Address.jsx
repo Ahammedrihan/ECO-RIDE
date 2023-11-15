@@ -303,14 +303,15 @@ export  function AddressMap(props) {
         zoom: zoom,
       });
 
-      map.current.on('move', () => {
-        setLng(map.current.getCenter().lng.toFixed(4));
-        setLat(map.current.getCenter().lat.toFixed(4));
-        setZoom(map.current.getZoom().toFixed(2));
-      });
+      // map.current.on('move', () => {
+      //   setLng(map.current.getCenter().lng.toFixed(4));
+      //   setLat(map.current.getCenter().lat.toFixed(4));
+      //   setZoom(map.current.getZoom().toFixed(2));
+      // });
 
       map.current.on('click', (event) => {
         const coordinates = event.lngLat;
+        console.log(coordinates)
         setLng(coordinates.lng);
         setLat(coordinates.lat);
         console.log('Longitude:', lng, 'Latitude:', lat);
