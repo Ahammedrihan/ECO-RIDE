@@ -26,6 +26,8 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['is_superuser'] = user.is_superuser
         token['email'] = user.email
         token['role'] = user.role
+        token['phone'] = user.phone
+
         print(token)
         return token
 
