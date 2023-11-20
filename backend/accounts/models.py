@@ -71,7 +71,7 @@ class AccountInfo(models.Model):
     class Gender(models.TextChoices):
         MALE = 'M','Male'
         FEMALE = 'F', 'Female'
-    user = models.ForeignKey(CustomUser,on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser,on_delete=models.CASCADE , related_name="account_info")
     address = models.CharField(max_length=255)
     dob = models.DateField(null=True, blank=True)
     age = models.IntegerField(null=True, blank=True)
@@ -96,8 +96,8 @@ class VehicleInfo(models.Model):
         HATCHBACK = "hatch", "Hatchback"
 
 
-    user = models.ForeignKey(CustomUser,on_delete = models.CASCADE)
-    regtration_number = models.CharField(max_length=10,unique=True)
+    user = models.ForeignKey(CustomUser,on_delete = models.CASCADE, related_name="vehicle_info")
+    registration_number = models.CharField(max_length=10,unique=True)
     vehicle_brand = models.CharField(max_length=30)
     vehicle_name = models.CharField(max_length=30)
     vehicle_type = models.CharField(max_length=20,choices=VehicleType.choices)
@@ -107,6 +107,8 @@ class VehicleInfo(models.Model):
     license_validity = models.DateField(null=True, blank=True)
     seat_capacity = models.IntegerField()
     mileage = models.IntegerField()
+    status = models.BooleanField(default=False)
+    default = models.BooleanField(default=False)
     vehicle_image1 = models.ImageField(upload_to="vehicle_images/",default=None,blank=True, null=True)
 
     def __str__(self):

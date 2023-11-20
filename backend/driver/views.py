@@ -12,9 +12,9 @@ class DriverProfileView(APIView):
     def get(self,request,driver_id):
         try:
             driver = CustomUser.objects.get(id = driver_id)
-            serializer_class = DriverProfileSerializer(driver)
-            print(serializer_class)
-            return Response(serializer_class.data,{"msg":"sucess"},status=status.HTTP_200_OK)
+            serializer = DriverProfileSerializer(driver)
+            print(serializer)
+            return Response(serializer.data,status=status.HTTP_200_OK)
         except CustomUser.DoesNotExist:
             return Response({"error": "Driver not found"}, status=status.HTTP_404_NOT_FOUND)
 
