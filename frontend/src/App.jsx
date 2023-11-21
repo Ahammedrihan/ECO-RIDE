@@ -37,12 +37,13 @@ const Routers = ()=>{
         <Route path='/' element={<Home/>} />
         <Route path='/login' element={<SignIn/>} />
         <Route path='/register' element={<SignUp/>} />
-        <Route path='/address' element={<Address/>} />
+
         <Route path='/location' element={<LocationComponent/>} />
         
             <Route element={<PrivateRouteUser/>}>
               <Route path='/profile' element={<Profile/>} />
               <Route path='/reset-password' element={<ResetPassword/>} />
+              <Route path='/address' element={<Address/>} />
             </Route>
         
         

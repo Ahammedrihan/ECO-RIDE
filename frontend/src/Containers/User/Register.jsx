@@ -89,13 +89,31 @@ export default function SignUp() {
             }
           })
           .catch((error) => {
-            console.log(error.response.data.firstName);
+            console.log(error);
+          
+            let errorMessage = 'An error occurred. Please try again.'; // Default error message
+          
+            // Check if the error has a response and response data
+            if (error.response && error.response.data) {
+              // Check if there are multiple errors in the response
+              if (error.response.data.errors) {
+                // Loop through the errors and concatenate them
+                errorMessage = Object.values(error.response.data.errors)
+                  .map((errorText) => errorText)
+                  .join('<br>');
+              } else if (error.response.data.message) {
+                // Check if there is a general error message
+                errorMessage = error.response.data.message;
+              }
+            }
+          
             Swal.fire({
               title: 'Error!',
-              text: error.response.data.firstName,
-              icon: 'error'
+              html: errorMessage, // Use 'html' instead of 'text' to render HTML content
+              icon: 'error',
             });
           });
+          
       }
     });
   }

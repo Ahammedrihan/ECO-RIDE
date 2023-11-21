@@ -19,7 +19,8 @@ export const userAddressAdd = "/api/user/user-address/<int:user_id>"
 export const addVehicle = "/api/user/add-vehicle/<int:user_id>/";
 
 
-
+export const driverProfile = "api/driver/driver/profile/"
+export const userProfile = "api/driver/driver/profile/"
 
 // export const userBlock = baseUrl+"user-block/<int:user_id>/"
 

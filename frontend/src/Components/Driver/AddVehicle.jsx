@@ -29,7 +29,7 @@ const  AddVehicle= (props) => {
  
   const [formData, setFormData] = useState({
     user : user_id,
-    regtration_number: "",
+    registration_number: "",
     vehicle_brand: "",
     vehicle_name: "",
     vehicle_color: "",
@@ -133,7 +133,7 @@ const  AddVehicle= (props) => {
       required
       type="text"
       placeholder="Number"
-      name="regtration_number"
+      name="registration_number"
       onChange={handleInputChange}
       pattern="[A-Za-z]{2}[0-9]{2}[A-Za-z]{1,2}[0-9]{4}"
       title="Please enter a valid vehicle registration number"
