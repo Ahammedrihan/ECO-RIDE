@@ -263,18 +263,25 @@ from rest_framework.parsers import MultiPartParser
 
 
 class AddVehicleView(APIView):
+    permission_classes = [IsAuthenticated]
 
     def post(self, request, user_id):
-        
-        print(request.data)
-        image = request.FILES.get("vehicle_image1")
-        copy = request.data.copy()
-        copy["vehicle_image1"] = image
-        print(copy,"klajhkajf")
-        serializer = AddVehicleSerializer(data=copy)
+        print(user_id,"userid")
+        vehicle = VehicleInfo.objects.filter(user_id = user_id)
+        print(vehicle,"user vehicle")
+        print(len(vehicle))
+        if len(vehicle) < 4 :
 
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            image = request.FILES.get("vehicle_image1")
+            copy = request.data.copy()
+            copy["vehicle_image1"] = image
+            serializer = AddVehicleSerializer(data=copy) 
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"msg":"max 4 vehicles"})
+
+

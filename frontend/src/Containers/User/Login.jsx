@@ -188,11 +188,16 @@ export default function SignIn() {
 }
 
 
-
 export function Google() {
+  const [userData,setUserData] = useState("")
     const responseMessage = (response) => {
         
         console.log(response);
+        console.log(response.credential);
+        const data = jwt_decode(response.credential)
+        console.log(data)
+        
+
     };
     const errorMessage = (error) => {
         console.log(error);
@@ -207,12 +212,7 @@ export function Google() {
             {/* <GoogleLogin onSuccess={responseMessage} onError={errorMessage} /> */}
             </div>
             {/* <GoogleLogin onSuccess={responseMessage}  theme="filled_black" text="signup_with" shape="circle" onError={errorMessage} /> */}
-
-
-
-</>
-
-        
+</> 
     )
 };
 

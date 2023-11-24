@@ -71,6 +71,7 @@ const  AddVehicle= (props) => {
       }
     }).then((response) => {
       if (response.status === 201) {
+       props.onAddVehicle()
         Swal.fire({
           title: 'Success!',
           text: 'The user details have been updated.',

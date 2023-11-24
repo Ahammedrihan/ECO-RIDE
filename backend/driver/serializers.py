@@ -29,6 +29,14 @@ class DriverProfileSerializer(serializers.ModelSerializer):
 
 
 
+class DeleteDriverSerializer(serializers.Serializer):
+    id = serializers.IntegerField(required=True)
+    class Meta:
+        models = VehicleInfo
+        fields = "__all__"
+
+
+
 
  
 
