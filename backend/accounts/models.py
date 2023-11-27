@@ -61,30 +61,36 @@ class CustomUser(AbstractBaseUser):
 
     def has_module_perms(self, add_label):
         return True
+    
+
+class Profile(models.Model):
+    class Gender(models.TextChoices):
+        MALE = 'M','Male'
+        FEMALE = 'F', 'Female'
+    gender = models.CharField(max_length=10, choices=Gender.choices)
+    about = models.TextField(null=True, default=None, blank=True)
+    user = models.ForeignKey(CustomUser,on_delete=models.CASCADE, related_name="profile_info")
+    dob = models.DateField(null=True, blank=True)
+    age = models.IntegerField(null=True, blank=True)
+    alternate_phone = models.CharField(max_length=15)
+    profile_image = models.ImageField(upload_to="profile_images/",default="profile_images/download(2).png",blank=True, null=True)
 
   
   
 
 class AccountInfo(models.Model):
 
-
-    class Gender(models.TextChoices):
-        MALE = 'M','Male'
-        FEMALE = 'F', 'Female'
     user = models.ForeignKey(CustomUser,on_delete=models.CASCADE , related_name="account_info")
     address = models.CharField(max_length=255)
-    dob = models.DateField(null=True, blank=True)
-    age = models.IntegerField(null=True, blank=True)
-    alternate_phone = models.CharField(max_length=15)
     city = models.CharField(max_length=255)
     district = models.CharField(max_length=255)
     state = models.CharField(max_length=255)
     pin_code = models.IntegerField()
-    gender = models.CharField(max_length=10, choices=Gender.choices)
-    about = models.TextField(null=True, default=None, blank=True)
-    lattitude =models.DecimalField(max_digits=30, decimal_places=20)
+    latitude =models.DecimalField(max_digits=30, decimal_places=20)
     longitude =models.DecimalField(max_digits=30, decimal_places=20)
-    profile_image = models.ImageField(upload_to="profile_images/",default="profile_images/download(2).png",blank=True, null=True)
+
+    def __str__(self):
+        return  f"{self.user} {self.latitude}{self.longitude}"
     
 
 

@@ -28,6 +28,7 @@ import PrivateDriverRoute from './Utils/PrivateRouteDriver.jsx';
 import DriverProfile from './Containers/Driver/Profile/DriverProfile.jsx';
 import AddVehicle from './Components/Driver/AddVehicle.jsx';
 import DriverVehicleList from './Containers/Driver/Vehicle/DriverVehicleList.jsx';
+import AddressDriver from './Containers/Driver/Address/AddressDriver.jsx';
 const Routers = ()=>{
 
   return(
@@ -66,6 +67,7 @@ const Routers = ()=>{
           <Route path='/driver/profile' element = {<DriverProfile/>}/>
           <Route path='/driver/add-vehicle' element = {<AddVehicle/>}/>
           <Route path='/driver/add-driver-vehicle' element = {<DriverVehicleList/>}/>
+          <Route path='/driver/address' element={<AddressDriver/>}/>
 
           </Route>
          

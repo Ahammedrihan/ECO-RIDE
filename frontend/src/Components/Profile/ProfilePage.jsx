@@ -33,6 +33,7 @@ export default function ProfilePage(props) {
         Authorization : `Bearer ${props.accessToken}`
       }
     }).then((response)=>{
+      console.log(response,"lanl;andlfknadlknflkndflkndflknad")
       if(response.status ===200){
         setUserData(response.data)
       }
@@ -49,7 +50,7 @@ export default function ProfilePage(props) {
         {props.role == "user"?  <UserProfileSideBar/> : 
          <DriverSideBar />}
        </div>
-      <div className="col-md-9">
+      <div className="col-md-9" style={{paddingLeft:"50px"}}>
         <MDBRow>
           <MDBCol md="6" lg="9" >
             <MDBCard className="mb-4">

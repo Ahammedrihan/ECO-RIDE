@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from accounts.models import CustomUser ,AccountInfo ,VehicleInfo
+from accounts.models import CustomUser ,AccountInfo ,VehicleInfo ,Profile
 from django.contrib.auth.hashers import check_password
 
 
@@ -38,10 +38,6 @@ class UserLoginSerializer(serializers.ModelSerializer):
         fields = ['email','password']
 
 
-class UserProfileSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CustomUser
-        fields = ['id','email','first_name','last_name','date_of_birth']
 
 class UserChangePasswordSerializer(serializers.ModelSerializer):
     old_password = serializers.CharField(max_length =255,style = {'input_type':'password'},write_only = True)
@@ -71,13 +67,34 @@ class UserChangePasswordSerializer(serializers.ModelSerializer):
         return attrs
     
 
+
+
+
 class AddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = AccountInfo
         fields = '__all__'
 
-    
-      
+class BasicProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = "__all__"
+
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    account_info = serializers.SerializerMethodField()
+
+    def get_account_info(self, obj):
+        account_info_instances = obj.account_info.all()
+        return AddressSerializer(account_info_instances, many=True).data
+    profile_info = BasicProfileSerializer(read_only = True,many=True)
+    class Meta:
+        model = CustomUser
+        fields = ['id','email','first_name','last_name',"account_info","profile_info"]
+
+
+
 
 
 

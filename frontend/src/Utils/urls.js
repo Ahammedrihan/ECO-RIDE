@@ -20,7 +20,11 @@ export const addVehicle = "/api/user/add-vehicle/<int:user_id>/";
 
 
 export const driverProfile = "api/driver/driver/profile/"
-export const userProfile = "api/driver/driver/profile/"
+export const userProfileurl = "api/user/profile/"
 
 // export const userBlock = baseUrl+"user-block/<int:user_id>/"
+
+
+export const basicProfileUrl = "/api/user/basic-profile-fetch"
+
 

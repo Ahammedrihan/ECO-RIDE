@@ -24,6 +24,7 @@ import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
 
 
+
 function DriverVehicleList() {
   const [userVehicle, setUserVehicle] = useState();
   const [showAddVehicleForm, setShowAddVehicleForm] = useState(false);
@@ -78,7 +79,7 @@ function DriverVehicleList() {
 
   return (
     <>
-        <div style={{ display: "flex", paddingRight: "20p", paddingTop: "20px", }}>
+        <div style={{ display: "flex", paddingRight: "20p", paddingTop: "20px" }}>
           <div style={{ flexBasis: "20%" }}>
             <DriverSideBar />
           </div>
@@ -110,11 +111,11 @@ function DriverVehicleList() {
              )}
             {showAddVehicleForm  ? (
               <>
-               <Button onClick={handleAddVehicleClickFalse} style={{ marginLeft:"400px"}}>Back To Table</Button>
+               <Button onClick={handleAddVehicleClickFalse} style={{ marginLeft:"200px"}}>Back To Table</Button>
               <AddVehicle storeDetails={driverStoreDataFetch} onAddVehicle={handleAddVehicleAlert}  /> 
               </>
               ):
-              (
+              ( 
                  userVehicle &&<CollapsibleTable userVehicle={userVehicle} accessToken = {accessToken} onDelete={handleOnDelete} driverId={driverId} onDefault={handleDefault}  />
               )}
           </div>

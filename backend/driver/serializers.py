@@ -6,10 +6,10 @@ from accounts.models import CustomUser,AccountInfo,VehicleInfo
 # <======================DRIVER PROFILE VIEW SERIALIZER=======================>
 
 
-# class DriverProfileAccountInfoSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = AccountInfo
-#         fields = "__all__"
+class DriverProfileAccountInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AccountInfo
+        exclude = ["address"]
 
 class DriverProfileVehicleInfo(serializers.ModelSerializer):
     class Meta:
@@ -17,15 +17,22 @@ class DriverProfileVehicleInfo(serializers.ModelSerializer):
         fields = "__all__"
 
 class DriverProfileSerializer(serializers.ModelSerializer):
-    # account_info = DriverProfileAccountInfoSerializer(read_only = True)
-    vehicle_info = DriverProfileVehicleInfo(read_only = True,many=True)
+    account_info = serializers.SerializerMethodField()
 
+    def get_account_info(self, obj):
+        account_info_instances = obj.account_info.all()
+        return DriverProfileAccountInfoSerializer(account_info_instances, many=True).data
+
+    vehicle_info = DriverProfileVehicleInfo(read_only=True, many=True)
     class Meta:
         model = CustomUser
-        fields = ["id", "email", "first_name", "phone", "last_name", "is_active", "date_joined",  "vehicle_info"]
+        fields = ["id", "email", "first_name", "phone", "last_name", "is_active", "date_joined",  "vehicle_info", "account_info"]
 
 
 # serilizer meythod field, related 
+
+
+# <======================DRIVER PROFILE VIEW SERIALIZER END=======================>
 
 
 

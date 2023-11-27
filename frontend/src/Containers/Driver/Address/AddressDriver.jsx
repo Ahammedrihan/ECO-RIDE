@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
-import AddressPage from "../../../Components/Profile/AddressPage";
-import UserProfileSideBar from "../../../Components/User/UserProfileSidebar";
-import { useSelector } from "react-redux";
-import axios from "axios";
-import { userProfileurl } from "../../../Utils/urls";
+import React, { useEffect,useState } from 'react'
+import AddressPage from '../../../Components/Profile/AddressPage'
+import {useSelector} from "react-redux"
+import DriverSideBar from '../../../Components/Driver/driverSidebar';
+import axios from "../../../Utils/axios"
+import {driverProfile} from "../../../Utils/urls"
 import IconButton from "@mui/material/IconButton";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -18,119 +18,60 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
 
-function Address() {
-  const userStoreData = useSelector((state) => state.authuser.userData);
-  const userId = userStoreData.user.user_id;
-  const userAccessToken = userStoreData.data.access;
 
-  const [userAddress, setUserAddress] = useState([]);
-  const path = `${userProfileurl}${userId}`;
+function AddressDriver() {
+    const driverData = useSelector((state)=>state.driverauth.driverData);
+    const driverId = driverData.driver.user_id;
+    const driverAccessToken = driverData.data.access;
+    const role =  driverData.driver.role
+    const path = `${driverProfile}${driverId}`
 
-  const [showDeleteAlert, setShowDeleteAlert] = useState(false);
-  const [ChageOccured, setChangeOccured] = useState(0);
-  const [showAddAddressForm, setShowAddAddressForm] = useState(false);
+    const [driverAddress,setDriverAddress] = useState([])
+    const [addressCount,setAddressCount] = useState(0)
 
-  useEffect(() => {
-    const fetchUserAddress = async () => {
-      const response = await axios
-        .get(path, {
-          headers: {
-            Authorization: `Bearer ${userAccessToken}`,
-          },
-        })
-        .then((response) => {
-          if (response.status === 200) {
-            setUserAddress(response.data.account_info);
-          } else {
-            console.log("not able to fetch user address info");
+    useEffect(()=>{
+      const FetchDriverAddress = async()=>{
+        const response = await axios.get(path,{
+          headers:{
+            Authorization : `Bearer ${driverAccessToken}`
           }
+        }).then((response)=>{
+          if(response.data.account_info){
+            console.log("got the driver address")
+            setDriverAddress(response.data.account_info)
+            setAddressCount(response.data.account_info.length)
+          }else{
+            console.log("not able to fetch driver address")
+          }
+        }).catch((error)=>{
+          console.log("error:",error)
         })
-        .catch((error) => {
-          console.log(error);
-        });
-    };
-    fetchUserAddress();
-  }, [ChageOccured]);
+      }
+      FetchDriverAddress()
+    },[addressCount])
 
-  const handleOnDelete = () => {
-    setShowDeleteAlert(true);
-    setChangeOccured(ChageOccured + 1);
-  };
+    const handleAddressDelete = ()=>{
+      setAddressCount(addressCount+1)
+    }
 
-  const handleAddAddressClick = () => {
-    setShowAddAddressForm(true);
-  };
+    
+  return ( 
+    <div style={{display:"flex",flexDirection:"column",alignItems:"center",paddingTop:"30px"}}>
+        <DriverSideBar/>
+        <AddressPage  accessToken ={driverAccessToken} userId={driverId} />
 
-  const handleAddAddressClickFalse = () => {
-    setShowAddAddressForm(false);
-  };
-
-  const handleAddAddressSuccess = () => {
-    setShowAddAddressForm(false);
-    setChangeOccured(ChageOccured + 1);
-  };
-
-  return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        paddingRight: "20px",
-        paddingTop: "30px",
-      }}>
-      <div style={{ flexBasis: "20%" }}>
-        <UserProfileSideBar />
-      </div>
-
-      <div style={{ flexBasis: "70%", borderRadius: "10px" }}>
-        {showDeleteAlert && (
-          <Alert severity="success" onClose={() => setShowDeleteAlert(false)}>
-            <AlertTitle>Success</AlertTitle>
-            vehicle deleted successfully!
-          </Alert>
-        )}
-
-        {userAddress && !showAddAddressForm && (
-          <Button
-            onClick={handleAddAddressClick}
-            style={{ marginBottom: "10px", backgroundColor: "#000000",border:"none" }}
-          >
-            Add Vehicle
-          </Button>
-        )}
-
-        {showAddAddressForm ? (
-          <>
-            <Button
-              onClick={handleAddAddressClickFalse}
-            style={{margin:"20px", backgroundColor: "#000000",border:"none"}}
-            >
-              Back To Table
-            </Button>
-            <div style={{ maxWidth: "800px" }}>
-              <AddressPage
-                accessToken={userAccessToken}
-                userId={userId}
-                onAddAddess={handleAddAddressSuccess}
-              />
-            </div>
-          </>
-        ) : (
-          <BasicTable
-            userAddress={userAddress}
-            onDelete={handleOnDelete}
-            accessToken={userAccessToken}
-          />
-        )}
-      </div>
+        <BasicTable accessToken={driverAccessToken} driverAddress={driverAddress} onDelete = {handleAddressDelete} />
     </div>
-  );
+  )
 }
 
-export default Address;
+export default AddressDriver
+
+
+
 
 export function BasicTable(props) {
-  const { accessToken, userAddress } = props;
+  const { accessToken, driverAddress } = props;
   const handleVehicleDelete = async (addressId) => {
     const response = await axios
       .post(
@@ -205,7 +146,7 @@ export function BasicTable(props) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {userAddress.map((address) => (
+          {driverAddress.map((address) => (
             <TableRow
               key={address.id}
               sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
@@ -251,30 +192,4 @@ export function BasicTable(props) {
       </Table>
     </TableContainer>
   );
-}
-
-{
-  /*      
-        {userAddress ? (
-         
-        ) : (
-         
-        )} */
-}
-
-{
-  /* {userAddress && !showAddAddressForm && (
-              <div>
-                 <Button onClick={handleAddAddressClick} style={{ margin:"10px"}}>Add Vehicle</Button>
-            </div>
-             )}
-            {showAddVehicleForm  ? (
-              <>
-               <Button onClick={handleAddVehicleClickFalse} style={{ marginLeft:"400px"}}>Back To Table</Button>
-              <AddVehicle storeDetails={driverStoreDataFetch} onAddVehicle={handleAddVehicleAlert}  /> 
-              </>
-              ):
-              (
-                 userVehicle &&<CollapsibleTable userVehicle={userVehicle} accessToken = {accessToken} onDelete={handleOnDelete} driverId={driverId} onDefault={handleDefault}  />
-              )} */
 }

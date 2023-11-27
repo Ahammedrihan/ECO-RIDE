@@ -3,9 +3,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
 from .serializers import UserRegistrationSerializer, UserLoginSerializer ,UserProfileSerializer,UserChangePasswordSerializer,UserSerializer,DriverSerializer
-from .serializers import AddressSerializer , AddVehicleSerializer
+from .serializers import AddressSerializer , AddVehicleSerializer ,BasicProfileSerializer
 from rest_framework.generics import ListAPIView
-from .models import CustomUser, AccountInfo,VehicleInfo
+from .models import CustomUser, AccountInfo,VehicleInfo,Profile
 from django.db.models import Q
 
 from django.contrib.auth import authenticate
@@ -93,12 +93,15 @@ class DriverRegistrationView(APIView):
 
 
 class UserProfileView(APIView):
-    renderer_classes =  [CustomUserRenderer]
     permission_classes = [IsAuthenticated]
-    def get(self,request,format = None):
-        serializer = UserProfileSerializer(request.user)
-        return Response(serializer.data,status=status.HTTP_200_OK)
-    
+    def get(self,request,user_id):
+        try:
+            user = CustomUser.objects.get(id = user_id)
+            serializer = UserProfileSerializer(user)
+            print(serializer)
+            return Response(serializer.data,status=status.HTTP_200_OK)
+        except CustomUser.DoesNotExist:
+            return Response({"error": "user not found"}, status=status.HTTP_404_NOT_FOUND)
 
 
 class UserChangePasswordView(APIView):
@@ -227,6 +230,23 @@ class UserAddAddressView(APIView):
             
         except CustomUser.DoesNotExist:
             return Response({"error":"User Not Found"}, status=status.HTTP_404_NOT_FOUND)
+        
+
+class UserBasicProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+   
+    def get(self,request,user_id):
+        try:
+            user = CustomUser.objects.get(id = user_id)
+            try:
+                user_basic_profile = Profile.objects.get(user = user)
+                serializer_class = BasicProfileSerializer(user_basic_profile)
+                return Response(serializer_class.data,status=status.HTTP_204_NO_CONTENT)
+            except :
+                return Response ({"msg":"user basic profile doesnot exist","error": "Profile is incomplete"},status=status.HTTP_200_OK)
+        except CustomUser.DoesNotExist:
+            return Response ({"msg":"user  doesnot exist"},status=status.HTTP_404_NOT_FOUND)
+
 
             
 
@@ -285,3 +305,88 @@ class AddVehicleView(APIView):
             return Response({"msg":"max 4 vehicles"})
 
 
+class DeleteAddress(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self,request,address_id):
+        try:
+            address = AccountInfo.objects.get(id = address_id)
+            address.delete()
+            return Response({"message":"address deleted succesfully"},status=status.HTTP_204_NO_CONTENT)
+        except VehicleInfo.DoesNotExist:
+            return Response ({"error":"address Not Found"},status=status.HTTP_404_NOT_FOUND)
+        
+
+from math import radians, cos, sin, asin, sqrt
+
+
+class FindNearByDriver(APIView):
+    def get(self,request,user_id):
+        user = CustomUser.objects.get(id = user_id)
+        user_account = AccountInfo.objects.filter(user = user)
+        user_long = user_account[0].longitude
+        user_lat = user_account[0].latitude
+
+
+        drivers = CustomUser.objects.filter(role ="driver",is_driver = True,is_active=True)
+        driver_info_list = []
+
+        def find_distance(user_lat,user_long,driver_lat,driver_long):
+
+            user_lat = radians(user_lat)
+            user_long = radians(user_long)
+            driver_lat = radians(driver_lat)
+            driver_long = radians(driver_long)
+
+            dlon = user_long - driver_long
+            dlat = user_lat - driver_lat
+            a = sin(dlat / 2)**2 + cos(driver_lat) * cos(user_lat) * sin(dlon / 2)**2
+            c = 2 * asin(sqrt(a)) 
+            r = 6371
+            return(c * r)
+
+        user_driver_diatance_array = []
+        for driver in drivers:
+            each_driver_address  = AccountInfo.objects.filter(user=driver).first()
+            if each_driver_address:
+                print(each_driver_address)
+                print(each_driver_address.latitude,each_driver_address.longitude)
+                a = find_distance(user_lat,user_long,each_driver_address.latitude,each_driver_address.longitude)
+                b = {
+                    "driver_id" : each_driver_address.id,
+                    "distance": a
+                }
+                user_driver_diatance_array.append(b)
+        print(user_driver_diatance_array)
+           
+        return Response({"msg":f"hekllo,{user}"})
+
+
+
+
+        # for driver in drivers:
+        #     driver_info = AccountInfo.objects.filter(user = driver).first()
+        #     if driver_info :
+        #         driver_dic = {
+        #              "driver":driver_info.user_id,
+        #              "driver_longitude" : driver_info.longitude,
+        #              "driver_latitude": driver_info.latitude
+        #         }
+        #         driver_info_list.append(driver_dic)
+
+
+        # print(driver_info_list,"list of drivers ")
+
+        # final  = []
+        # for i in driver_info_list :
+        #     a = find_distance(user_lat,user_long,i["driver_latitude"],i["driver_longitude"])
+        #     b = {
+        #         "driver_id":i["driver"],
+        #         "distance" : a
+        #     }
+        #     final.append(b)
+        # print(final)
+        # return Response({"msg":f"hekllo,{user}"})
+    
+
+
+                

@@ -63,10 +63,12 @@ export default function SignIn() {
       headers:{"Content-Type":"application/json"}})
 
     .then((response)=>{
+      console.log(response,"adfadfafafafaafafafafafaddfafafafadfaddfadfafadfa")
 
       if (response.status === 200){
         const decodeUser = jwt_decode(response.data.access) 
-        console.log(decodeUser,"user details")    
+        console.log(decodeUser,"user details")  
+
         if (decodeUser.role == "user"){
           console.log(decodeUser.email,"jjjjjjjjjjjjjj")
           dispatch(userLogin({user:decodeUser,...response}))

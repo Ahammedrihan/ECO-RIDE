@@ -19,6 +19,7 @@ import jwt_decode from 'jwt-decode'
 import Swal from "sweetalert2";
 import { driverLoginUrl } from '../../../Utils/urls';
 import { driverLogin } from '../../../../Redux/slices/driverSlice/driverauthSlice';
+import {useEffect} from  'react'
 
 
 
@@ -45,7 +46,29 @@ export default function DriverLogin() {
   const navigate = useNavigate()
   const [email,setEmail] = React.useState("")
   const [password,setPassword] = React.useState("")
+  const [driverLoggedIn, setDriverLoggegIn]  = React.useState(false)
 
+  const driver = useSelector((state)=>state.driverauth.driverData)
+
+  useEffect(()=>{
+    const checkDriverLoggedIn = ()=>{
+      if(driver){
+        setDriverLoggegIn(true)
+        console.log("dnflkd")
+      }else{
+        setDriverLoggegIn(false)
+       
+      }
+    }
+    checkDriverLoggedIn()
+  },[driver])
+
+{ if(driverLoggedIn){
+  navigate("/driver/home")
+}else{
+
+  
+  
   const handleSubmit = (e) => {
     e.preventDefault();
     const data = JSON.stringify({
@@ -115,7 +138,7 @@ export default function DriverLogin() {
           <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
             <LockOutlinedIcon />
           </Avatar>
-          <Typography component="h1" variant="h5">
+          <Typography component="h1" variant="h5" >
             Driver Sign in
           </Typography>
           <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
@@ -157,11 +180,13 @@ export default function DriverLogin() {
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
             >
+              {/* style={{backgroundColor:"#000"}} */}
               Sign In
             </Button>
             <Grid container>
               <Grid item xs>
-                <Link href="#" variant="body2">
+                <Link href="#" variant="body2" >
+                {/* style={{textDecoration: 'none',color:"black"}} */}
                   Forgot password?
                 </Link>
               </Grid>
@@ -180,3 +205,10 @@ export default function DriverLogin() {
     </ThemeProvider>
   );
 }
+
+
+}}
+
+
+
+ 

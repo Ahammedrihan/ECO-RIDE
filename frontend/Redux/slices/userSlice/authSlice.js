@@ -14,6 +14,12 @@ export const authUserSlice = createSlice({
             state.userData = action.payload
             localStorage.setItem('userData',JSON.stringify(action.payload))
         },
+        userLogout:(state)=>{
+            console.log(state)
+            state.userData = null
+            localStorage.removeItem('userData');
+        }
+       
         
     }
 })

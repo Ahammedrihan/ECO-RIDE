@@ -17,37 +17,35 @@ import { Link } from 'react-router-dom';
 import { useSelector } from "react-redux";
 import Store from '../../../Redux/store/store';
 import { selectDriver } from '../../../Redux/slices/driverSlice/driverauthSlice';
-
+import { useDispatch } from 'react-redux';
+import { driverLogout } from '../../../Redux/slices/driverSlice/driverauthSlice';
 
 
 const pages = ['Register', 'Pricing', 'Blog'];
 
 
-
-
-
-
-
 function Navbar() {
   const driver = useSelector(selectDriver);
+  const [anchorElNav, setAnchorElNav] = React.useState(null);
+  const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const dispatch = useDispatch()
+
+
 
   let settings = [];
-
-  
-
   if (driver) {
     settings = [
       { id: 1, text: 'View', path: '/driver/profile' },
-      { id: 2, text: 'Logout', path: '/login' },
+      { id: 2, text: 'Logout', path: '/driver/login' },
     ];
   } else {
     settings = [
       { id: 2, text: 'Login', path: '/login' },
+  
     ];
   }
   
-  const [anchorElNav, setAnchorElNav] = React.useState(null);
-  const [anchorElUser, setAnchorElUser] = React.useState(null);
+ 
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -63,6 +61,13 @@ function Navbar() {
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
+
+  const handleMenuItemClick = (settings)=>{
+    if (settings.text === "Logout"){
+      dispatch(driverLogout())
+      
+    }
+  }
 
   return (
     <AppBar position="static" sx={{ backgroundColor: 'black' }}>
@@ -174,29 +179,19 @@ function Navbar() {
                 horizontal: 'right',
               }}
               open={Boolean(anchorElUser)}
-              onClose={handleCloseUserMenu}
-              
-            >
+              onClose={handleCloseUserMenu}>
               {settings.map((setting) => (
-                
                   <Link to={setting.path} key={setting.id} style={{ textDecoration: 'none', color: 'inherit' }}>
-                <MenuItem  onClick={handleCloseUserMenu}>
-                  <Typography textAlign="center">   <Link to={setting.path} key={setting.id} style={{ textDecoration: 'none', color: 'inherit' }}>
-                <MenuItem  onClick={handleCloseUserMenu}>
-                <Typography textAlign="center">
-
-        
-  {setting.text}
-</Typography>
-                </MenuItem>
-                </Link>
-                  
-                  
-                  
+                <MenuItem  onClick={handleCloseUserMenu} >
+                  <Typography textAlign="center">  
+                      <Link to={setting.path} key={setting.id} style={{ textDecoration: 'none', color: 'inherit' }}>
+                          <MenuItem  onClick={()=>handleMenuItemClick(setting)}>
+                            <Typography textAlign="center">{setting.text} </Typography>
+                          </MenuItem>
+                      </Link>
                   </Typography>
                 </MenuItem>
                 </Link>
-                
               ))}
             </Menu>
           </Box>

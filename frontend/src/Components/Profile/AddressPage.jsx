@@ -18,11 +18,27 @@ mapboxgl.accessToken = 'pk.eyJ1IjoiYWhhbW1lZHJpaGFuY20iLCJhIjoiY2xvc3BwejUyMDBmN
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 const AddressPage = (props) => {
  
-  // const userStoreDataFetch = useSelector((state) => state.authuser.userData);
-  // const user_id = userStoreDataFetch.user.user_id;
-  // const userAccessToken = userStoreDataFetch.data.access;
   const {userId,accessToken} = props
   
   const [location, setLocation] = useState(null);
@@ -34,10 +50,10 @@ const AddressPage = (props) => {
   })
   const [formData, setFormData] = useState({
     user:userId,
-    birthdate: "",
-    age: "",
-    alternate_phone: "",
-    gender: "",
+    // birthdate: "",
+    // age: "",
+    // alternate_phone: "",
+    // gender: "",
     address: "",
     city: "",
     district: "",
@@ -107,6 +123,7 @@ const AddressPage = (props) => {
       }
     }).then((response) => {
       if (response.status === 201) {
+        props.onAddAddess()
         Swal.fire({
           title: 'Success!',
           text: 'The user details have been updated.',
@@ -136,7 +153,7 @@ const AddressPage = (props) => {
           <Card.Body>
             <h5 className="mb-4">Additional information</h5>
             <Form onSubmit={handleSubmit}>
-              <Row className="align-items-center">
+              {/* <Row className="align-items-center">
                 <Col sm={6} className="mb-3">
                   <Form.Group controlId="birthdate">
                     <Form.Label>Birthday</Form.Label>
@@ -179,9 +196,9 @@ const AddressPage = (props) => {
                     <Form.Control required type="number" placeholder="+12-345 678 910" name="alternate_phone" onChange={handleInputChange} />
                   </Form.Group>
                 </Col>
-              </Row>
+              </Row> */}
               <h5 className="my-4">Address</h5>
-              <Row>
+              <Row >
                 <Col sm={9} className="mb-3">
                   <Form.Group controlId="address">
                     <Form.Label>Address</Form.Label>
@@ -234,12 +251,11 @@ const AddressPage = (props) => {
            </Form.Group>
               </Row>
               <div className="mt-3">
-                <Button variant="primary" type="submit">Save All</Button>
+                <Button style={{ backgroundColor: "#000000",border:"none" }} type="submit">Save All</Button>
               </div>
 
 
             </Form>
-           
           </Card.Body>
         </Card>
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100vw', paddingRight: "60px"}}>
