@@ -22,7 +22,7 @@ import Stack from '@mui/material/Stack';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
-
+import img from '../../../assets/8574 (1).jpg'
 
 
 function DriverVehicleList() {
@@ -106,12 +106,12 @@ function DriverVehicleList() {
 {/* ================================ALERT SECTION END============================ */}         
             {userVehicle && !showAddVehicleForm && (
               <div>
-                 <Button onClick={handleAddVehicleClick} style={{ margin:"10px"}}>Add Vehicle</Button>
+                 <Button onClick={handleAddVehicleClick} style={{ margin:"10px", backgroundColor:"#000",border:"none"}}>Add Vehicle</Button>
             </div>
              )}
             {showAddVehicleForm  ? (
               <>
-               <Button onClick={handleAddVehicleClickFalse} style={{ marginLeft:"200px"}}>Back To Table</Button>
+               <Button onClick={handleAddVehicleClickFalse} style={{ marginLeft:"380px", backgroundColor:"#000",border:"none"}}>Back To Table</Button>
               <AddVehicle storeDetails={driverStoreDataFetch} onAddVehicle={handleAddVehicleAlert}  /> 
               </>
               ):
@@ -131,7 +131,6 @@ export default DriverVehicleList;
 function Row(props) {
   const { vehicle, accessToken ,userVehicle,driverId} = props;
   const [open, setOpen] = React.useState(false);
-  console.log(userVehicle)
 
   const handleVehicleDefault = async (vehicleId)=>{
     const response = await axios.patch(`api/driver/driver/profile/set-default/${vehicleId}/${driverId}/`,{},{
@@ -239,7 +238,7 @@ function Row(props) {
                     <TableCell align="right">
                       {" "}
                       <img
-                        src={vehicle.vehicle_image1}
+                        src={img}
                         alt={`Vehicle ${vehicle.id}`}
                         style={{ width: "50px", height: "50px" }}
                       />

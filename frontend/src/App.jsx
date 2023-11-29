@@ -29,6 +29,8 @@ import DriverProfile from './Containers/Driver/Profile/DriverProfile.jsx';
 import AddVehicle from './Components/Driver/AddVehicle.jsx';
 import DriverVehicleList from './Containers/Driver/Vehicle/DriverVehicleList.jsx';
 import AddressDriver from './Containers/Driver/Address/AddressDriver.jsx';
+import DriverActive from './Containers/Driver/DriverActivate.jsx/DriverActive.jsx';
+import RequestRide from './Containers/User/RequestRide/RequestRide.jsx';
 const Routers = ()=>{
 
   return(
@@ -45,6 +47,7 @@ const Routers = ()=>{
               <Route path='/profile' element={<Profile/>} />
               <Route path='/reset-password' element={<ResetPassword/>} />
               <Route path='/address' element={<Address/>} />
+              <Route path='/request-ride' element={<RequestRide/>} />
             </Route>
         
         
@@ -68,6 +71,9 @@ const Routers = ()=>{
           <Route path='/driver/add-vehicle' element = {<AddVehicle/>}/>
           <Route path='/driver/add-driver-vehicle' element = {<DriverVehicleList/>}/>
           <Route path='/driver/address' element={<AddressDriver/>}/>
+          <Route path='/driver/location-set-activate' element={<DriverActive/>}/>
+
+
 
           </Route>
          

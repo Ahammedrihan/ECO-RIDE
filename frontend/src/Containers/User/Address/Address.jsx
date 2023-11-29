@@ -22,12 +22,13 @@ function Address() {
   const userStoreData = useSelector((state) => state.authuser.userData);
   const userId = userStoreData.user.user_id;
   const userAccessToken = userStoreData.data.access;
-
-  const [userAddress, setUserAddress] = useState([]);
   const path = `${userProfileurl}${userId}`;
 
+  const [userAddress, setUserAddress] = useState([]);
+
+
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
-  const [ChageOccured, setChangeOccured] = useState(0);
+  const [addressCount, setAddressCount] = useState(0);
   const [showAddAddressForm, setShowAddAddressForm] = useState(false);
 
   useEffect(() => {
@@ -41,6 +42,7 @@ function Address() {
         .then((response) => {
           if (response.status === 200) {
             setUserAddress(response.data.account_info);
+            setAddressCount(response.data.account_info.length);
           } else {
             console.log("not able to fetch user address info");
           }
@@ -50,11 +52,11 @@ function Address() {
         });
     };
     fetchUserAddress();
-  }, [ChageOccured]);
+  }, [addressCount]);
 
   const handleOnDelete = () => {
     setShowDeleteAlert(true);
-    setChangeOccured(ChageOccured + 1);
+    setAddressCount(addressCount - 1);
   };
 
   const handleAddAddressClick = () => {
@@ -67,7 +69,7 @@ function Address() {
 
   const handleAddAddressSuccess = () => {
     setShowAddAddressForm(false);
-    setChangeOccured(ChageOccured + 1);
+    setAddressCount(addressCount + 1);
   };
 
   return (
@@ -95,7 +97,7 @@ function Address() {
             onClick={handleAddAddressClick}
             style={{ marginBottom: "10px", backgroundColor: "#000000",border:"none" }}
           >
-            Add Vehicle
+            Add Address
           </Button>
         )}
 

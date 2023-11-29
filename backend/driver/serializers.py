@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from accounts.models import CustomUser,AccountInfo,VehicleInfo
+from accounts.models import CustomUser,AccountInfo,VehicleInfo,ActiveDrivers
 
 
 
@@ -39,8 +39,14 @@ class DriverProfileSerializer(serializers.ModelSerializer):
 class DeleteDriverSerializer(serializers.Serializer):
     id = serializers.IntegerField(required=True)
     class Meta:
-        models = VehicleInfo
+        model = VehicleInfo
         fields = "__all__"
+
+class DriverActiveLocationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ActiveDrivers
+        fields = "__all__"
+        
 
 
 

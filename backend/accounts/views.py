@@ -293,6 +293,8 @@ class AddVehicleView(APIView):
         if len(vehicle) < 4 :
 
             image = request.FILES.get("vehicle_image1")
+            print(image)
+            print(request.FILES.get("vehicle_image1"))
             copy = request.data.copy()
             copy["vehicle_image1"] = image
             serializer = AddVehicleSerializer(data=copy) 
@@ -359,6 +361,8 @@ class FindNearByDriver(APIView):
         print(user_driver_diatance_array)
            
         return Response({"msg":f"hekllo,{user}"})
+    
+
 
 
 
@@ -386,6 +390,8 @@ class FindNearByDriver(APIView):
         #     final.append(b)
         # print(final)
         # return Response({"msg":f"hekllo,{user}"})
+
+
     
 
 

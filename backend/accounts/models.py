@@ -88,6 +88,7 @@ class AccountInfo(models.Model):
     pin_code = models.IntegerField()
     latitude =models.DecimalField(max_digits=30, decimal_places=20)
     longitude =models.DecimalField(max_digits=30, decimal_places=20)
+    default = models.BooleanField(default=False)
 
     def __str__(self):
         return  f"{self.user} {self.latitude}{self.longitude}"
@@ -100,8 +101,6 @@ class VehicleInfo(models.Model):
     class VehicleType(models.TextChoices):
         SEDAN = "sedan", "Sedan"
         HATCHBACK = "hatch", "Hatchback"
-
-
     user = models.ForeignKey(CustomUser,on_delete = models.CASCADE, related_name="vehicle_info")
     registration_number = models.CharField(max_length=10,unique=True)
     vehicle_brand = models.CharField(max_length=30)
@@ -119,5 +118,13 @@ class VehicleInfo(models.Model):
 
     def __str__(self):
         return f"{self.user.email}{self.vehicle_brand}"
+    
+class ActiveDrivers(models.Model):
+    user = models.ForeignKey( CustomUser,on_delete=models.CASCADE)
+    active_vehicle = models.ForeignKey(VehicleInfo,on_delete=models.CASCADE)
+    existing_address = models.ForeignKey(AccountInfo,on_delete=models.CASCADE, null=True,blank=True)
+    latitude =models.DecimalField(max_digits=30, decimal_places=20)
+    longitude =models.DecimalField(max_digits=30, decimal_places=20) 
+   
 
 

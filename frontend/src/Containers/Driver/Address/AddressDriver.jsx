@@ -28,6 +28,23 @@ function AddressDriver() {
 
     const [driverAddress,setDriverAddress] = useState([])
     const [addressCount,setAddressCount] = useState(0)
+    const [showAddAddressForm, setShowAddAddressForm] = useState(false);
+
+    const [showDeleteAlert, setShowDeleteAlert] = useState(false);
+    const [showAddessAddAlert,setAddressAddAlert] = useState(false)
+    const [showAddressDefaultAlert, setShowAddressDefaultAlert] = useState(false)
+
+
+    const handleAddAddressSuccess = ()=>{
+      setShowAddAddressForm(false);
+      setAddressCount(addressCount + 1);
+
+    }
+    const handleAddressDefault = ()=>{
+      setShowAddressDefaultAlert(true)
+      setAddressCount(addressCount + 1)
+
+    }
 
     useEffect(()=>{
       const FetchDriverAddress = async()=>{
@@ -51,16 +68,70 @@ function AddressDriver() {
     },[addressCount])
 
     const handleAddressDelete = ()=>{
-      setAddressCount(addressCount+1)
+      setAddressCount(addressCount-1)
+      setShowDeleteAlert(true)
     }
+
+    const handleAddAddressClick=()=>{
+      setShowAddAddressForm(true);
+      setAddressAddAlert(true)
+
+    }
+    const  handleAddAddressClickFalse = ()=>{
+      setShowAddAddressForm(false);
+
+    }
+
 
     
   return ( 
-    <div style={{display:"flex",flexDirection:"column",alignItems:"center",paddingTop:"30px"}}>
-        <DriverSideBar/>
-        <AddressPage  accessToken ={driverAccessToken} userId={driverId} />
+    <div style={{display:"flex",alignItems:"center",paddingTop:"30px", paddingRight: "20px",}}>
 
-        <BasicTable accessToken={driverAccessToken} driverAddress={driverAddress} onDelete = {handleAddressDelete} />
+        <div style={{ flexBasis: "20%" }}>
+            <DriverSideBar/>
+        </div>
+
+        {/* ======================================Alert Section =========================== */}
+        <div style={{ flexBasis: "70%", borderRadius: "10px" }}>
+        {showDeleteAlert &&(
+           <Alert severity="success" onClose={() => setShowDeleteAlert(false)}>
+           <AlertTitle>Success</AlertTitle>
+           Address deleted successfully!
+         </Alert>
+        )}
+          {showAddressDefaultAlert &&(
+           <Alert severity="success" onClose={() => setShowAddressDefaultAlert(false)}>
+           <AlertTitle>Success</AlertTitle>
+           New Address Set as Deafult successfully!
+         </Alert>
+        )}
+
+
+        
+
+         {driverAddress && !showAddAddressForm && (
+          
+          <Button
+          onClick={handleAddAddressClick}
+          style={{ marginBottom: "10px", backgroundColor: "#000000",border:"none" }}>
+          Add Address
+          </Button>
+          )}
+          {showAddAddressForm ? (
+          <>
+          <Button
+          onClick={handleAddAddressClickFalse}
+          style={{margin:"20px", backgroundColor: "#000000",border:"none"}}>
+          Back To Table
+          </Button>
+          <div style={{ maxWidth: "800px" }}>
+          <AddressPage  accessToken ={driverAccessToken} userId={driverId} onAddAddess={handleAddAddressSuccess}/>
+          </div>
+          </>          
+        ):(
+          <BasicTable accessToken={driverAccessToken} driverAddress={driverAddress} onDelete = {handleAddressDelete} onDefault={handleAddressDefault} />
+        )}
+      </div>
     </div>
   )
 }
@@ -72,18 +143,15 @@ export default AddressDriver
 
 export function BasicTable(props) {
   const { accessToken, driverAddress } = props;
-  const handleVehicleDelete = async (addressId) => {
-    const response = await axios
-      .post(
-        `api/user/address/delete/${addressId}/`,
-        {},
+
+  const handleAddressDelete = async (addressId) => {
+    const response = await axios.post(`api/user/address/delete/${addressId}/`,{},
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
         }
-      )
-      .then((response) => {
+      ).then((response) => {
         if (response.status == 204) {
           props.onDelete(addressId);
         } else {
@@ -94,6 +162,25 @@ export function BasicTable(props) {
         console.log(error, "errror");
       });
   };
+
+
+  const handleAddressDefault = async (AddressId)=>{
+    const response = await axios.patch(`api/driver/driver/profile/set-default-address/${AddressId}/`,{},{
+      headers:{
+        Authorization: `Bearer ${accessToken}`
+      }
+    }).then((response)=>{ 
+      if (response.status ===202){
+        props.onDefault();
+        console.log("default succewss")
+      }else{
+        console.log("default fail")
+      }
+    })
+
+  }
+
+
   return (
     <TableContainer component={Paper}>
       <Table
@@ -142,7 +229,11 @@ export function BasicTable(props) {
             <TableCell
               align="center"
               sx={{ color: "#6f6975", fontWeight: "bold" }}
-            ></TableCell>
+            >Delete</TableCell>
+            <TableCell
+              align="center"
+              sx={{ color: "#6f6975", fontWeight: "bold" }}
+            >Status</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -180,12 +271,24 @@ export function BasicTable(props) {
                     aria-label="delete"
                     size="small"
                     style={{ color: "red" }}
-                    onClick={() => handleVehicleDelete(address.id)}
+                    onClick={() => handleAddressDelete(address.id)}
                   >
                     <DeleteIcon fontSize="inherit" />
                   </IconButton>
                 </Stack>
               </TableCell>
+              { address.default === true ? 
+         <TableCell align="center" ><Button variant="contained" color="success" style={{backgroundColor:"#2ccc21"}} onClick={()=>handleAddressDefault(address.id)}>
+          Active
+         </Button>
+         </TableCell> :
+         <TableCell align="center" >
+         <Button variant="outlined" color="error" style={{borderBlockColor:"red",color:"red",border:"none"}}  onClick={()=>handleAddressDefault(address.id)}>
+         In Active
+        </Button>
+        
+        </TableCell>
+      }
             </TableRow>
           ))}
         </TableBody>

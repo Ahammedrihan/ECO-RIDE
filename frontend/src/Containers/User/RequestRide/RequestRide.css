@@ -1,0 +1,25 @@
+.container {
+    display: flex;
+    margin-left: 20px;
+  }
+  
+  .left {
+    flex: 1 0 30%; /* Adjust as needed */
+  }
+  
+  .right {
+    flex: 1 0 70%; /* Adjust as needed */
+  }
+  
+  /* Media query for screens smaller than a certain width */
+  @media (max-width:800px) {
+    .container {
+      flex-direction: column; /* Switch to column layout */
+    }
+  
+    .left,
+    .right {
+      flex: 1 0 100%; /* Take up full width in column layout */
+    }
+  }
+  
