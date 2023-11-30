@@ -82,6 +82,7 @@ export default function DriverLogin() {
     .then((response)=>{
 
       if (response.status === 200){
+        console.log(response.data.access,"ACESSSSSS")
         const decodeUser = jwt_decode(response.data.access) 
         console.log(decodeUser,"user details")    
         if (decodeUser.role == "driver"){

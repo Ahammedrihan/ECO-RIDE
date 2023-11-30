@@ -7,6 +7,8 @@ import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import "./RequestRide.css"
+import axios from "../../../Utils/axios"
+import {useSelector} from "react-redux"
 
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
@@ -19,17 +21,36 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Navigate, useNavigate } from 'react-router-dom';
-import {useDispatch ,useSelector} from 'react-redux'
 import jwt_decode from 'jwt-decode'
 import Swal from "sweetalert2";
 
 
 
 
-
-
-
 function RequestRide() {
+
+  const userStoreData = useSelector((store)=> store.authuser.userData)
+  const userId = userStoreData.user.user_id;
+  const userAccessToken = userStoreData.data.access;
+
+
+const handleShowNearByDrivers = async()=>{
+  const repsonse = await axios.get(`api/user/nearby-drivers/${userId}/`,{
+    headers:{
+      Authorization:`Bearer ${userAccessToken}`
+    }
+  }).then((response)=>{
+    if(response.status === 200){
+      console.log("sucess")
+      console.log(response.data)
+
+    }else{
+      console.log("failed")
+    }
+  }).catch((error)=>{
+    console.log(error,"erorrrrrr")
+  })
+}
   return (
     <>
       <Navbar />
@@ -82,9 +103,6 @@ function RequestRide() {
               type="password"
               id="password"
               autoComplete="current-password"
-              
-          
-           
             />
            
             <Button
@@ -92,21 +110,13 @@ function RequestRide() {
               fullWidth
               variant="contained"
               sx={{ mt: 1, mb: 2 }}
-              style={{backgroundColor:"#000"}}
+              // style={{backgroundColor:"#000"}}
             >
               Stat 
             </Button>
-           
-     
           </Box>
         </Box>
         </div>
-
- 
-
-
-
-               
               </CardContent>
               <CardActions>
                 <Button size="small">Learn More</Button>
@@ -116,6 +126,10 @@ function RequestRide() {
         </div>
         <div className="right" style={{padding:"20px"}}>
           <h1> right</h1>
+          <div>
+            <h3>Click here to see Near By driver</h3>
+          <button style={{backgroundColor:"#000"}} onClick={handleShowNearByDrivers}>Show Drivers</button>
+          </div>
         </div>
       </div>
     </>

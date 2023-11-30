@@ -41,7 +41,7 @@ export default function ProfilePage(props) {
   },[])
 
   return (
-    <section style={{ backgroundColor: '#eee' }}>
+    <section style={{ backgroundColor: '#eee', }}>
      <MDBContainer className="pt-5">
      <div style={{ display: 'flex'}}>
      <div className="container-fluid">

@@ -17,7 +17,7 @@ export const driverAuthSlice = createSlice({
         driverLogout : (state)=>{
             console.log(state,"state of driver in slice")
             state.driverData = null
-            localStorage.removeItem("userData")
+            // localStorage.removeItem("userData")
         }
         
     }

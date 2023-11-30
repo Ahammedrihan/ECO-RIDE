@@ -76,7 +76,7 @@ export default function SignUp() {
               }).then(() => {
                 // redirect to login after success
                 console.log("helloooo")
-                navigate('/')
+                navigate('/login')
                 
               });
             } else {

@@ -19,6 +19,7 @@ import Store from '../../../Redux/store/store';
 import { selectDriver } from '../../../Redux/slices/driverSlice/driverauthSlice';
 import { useDispatch } from 'react-redux';
 import { driverLogout } from '../../../Redux/slices/driverSlice/driverauthSlice';
+import axios from '../../Utils/axios';
 
 
 const pages = ['Register', 'Pricing', 'Blog'];
@@ -26,6 +27,9 @@ const pages = ['Register', 'Pricing', 'Blog'];
 
 function Navbar() {
   const driver = useSelector(selectDriver);
+  const refresh_token = driver.data.refresh
+  const accesstoken = driver.data.access
+
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
   const dispatch = useDispatch()
@@ -62,9 +66,60 @@ function Navbar() {
     setAnchorElUser(null);
   };
 
-  const handleMenuItemClick = (settings)=>{
+
+
+
+
+
+  // 
+//     await axios.post(
+//       `${apiUrl}/authentification/logout/`,
+//       {
+//         refresh_token: localStorage.getItem("refresh_token"),
+//       },
+//       {
+//         headers: {
+//           "Content-Type": "application/json",
+//           Authorization: `Bearer ${accessToken}`,
+//         },
+//         withCredentials: true,
+//       }
+//     );
+
+//     localStorage.clear();
+//     axios.defaults.headers.common["Authorization"] = null;
+
+//     dispatch(logoutSuccess());
+
+//     window.location.href = "/login";
+//   } catch (e) {
+//     console.log("logout not working", e);
+//   }
+// };
+
+  const handleMenuItemClick = async(settings)=>{
     if (settings.text === "Logout"){
       dispatch(driverLogout())
+
+
+      await axios.post(`api/user/logout/`,{refresh_token},{
+        headers:{
+          "Content-Type": "application/json",
+          Authorization:`Bearer ${accesstoken}`
+        }
+      }).then((response)=>{
+        if(response.status === 205){
+          console.log("logout sucess and blacklisted")
+          localStorage.removeItem("userData")
+          localStorage.clear()
+
+        }else{
+          console.log("balck list not done")
+        }
+      })
+
+      
+      
       
     }
   }
