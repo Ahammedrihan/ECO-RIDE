@@ -111,7 +111,7 @@ class UserSerializer(serializers.ModelSerializer):
 class DriverSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = "address",  "alternate_phone", "dob" ,"city" , "district" , "gender" ,"state" ,"pin_code"
+        fields = "__all__"
 
 
 

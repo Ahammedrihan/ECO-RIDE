@@ -519,7 +519,7 @@
 
 import React, { useState, useEffect } from "react";
 import SideBar from "./SideBar";
-import { getDrivers } from "../../../Utils/urls";
+import { getUsers } from "../../../Utils/urls";
 import { FaSearch } from "react-icons/fa";
 import axios from "../../../Utils/axios";
 import "./UserList.css";
@@ -533,8 +533,8 @@ function UserList() {
   const fetchData = async () => {
     try {
       const url = searchTerm
-        ? getDrivers + `?search=${searchTerm}`
-        : getDrivers;
+        ? getUsers + `?search=${searchTerm}`
+        : getUsers;
       console.log(url);
       const res = await axios.get(url);
       console.log(res.data);
@@ -601,7 +601,7 @@ function UserList() {
         </div>
       </div>
 
-      <section className="container p-4">
+      <section className="container p-4" >
         <div className="container mx-auto p-5">
           <h1 className="text-2xl font-bold mb-4">User List</h1>
           <table className="min-w-full bg-white border border-gray-300">

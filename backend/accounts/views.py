@@ -129,7 +129,7 @@ class UserListView(ListAPIView):
     serializer_class = UserSerializer
 
     def get_queryset(self):
-        query = CustomUser.objects.filter(role__iexact="user")
+        query = CustomUser.objects.filter(role="user")
         print(query)
         search = self.request.query_params.get('search',None)
         if search==None:
