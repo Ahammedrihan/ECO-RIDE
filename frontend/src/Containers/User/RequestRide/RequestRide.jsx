@@ -35,6 +35,19 @@ import mapboxgl from "mapbox-gl";
 import MapboxDirections from "@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions";
 import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
 
+
+import Stack from '@mui/material/Stack';
+import IconButton from '@mui/material/IconButton';
+import Edit from '@mui/icons-material/Edit';
+import Chip from '@mui/material/Chip';
+import Switch from '@mui/material/Switch';
+import NestedModal from "../../../Components/User/ScheduleRide";
+
+
+import Modal from '@mui/material/Modal';
+
+
+
 function RequestRide() {
   const userStoreData = useSelector((store) => store.authuser.userData);
   const userId = userStoreData.user.user_id;
@@ -42,7 +55,19 @@ function RequestRide() {
 
   const [activerDrivers, setActiveDrivers] = useState([]);
   const [activeDriversTrue, setActiveDriversTrue] = useState(false);
-  console.log(activerDrivers, "drrrrrr");
+
+  const [OrginLocationPropPassedDataforForm,setOrginLocationPropPassedDataforForm] = useState(null)
+  const [DestinationLocationPropPassedDataforForm,setDestinationLocationPropPassedDataforForm] = useState(null)
+
+  const [userSelectDefaultAddressData,setUserSelectDefaultAddressData] = useState({
+    geometry : {
+      coordinates : []
+    }
+  })
+  const [userSelectDefaultAddress,setUserSelectDefaultAddress] = useState(false)
+
+  const [ismodalOpen,IssetModalOpen] = useState(false)
+
 
   const handleShowNearByDrivers = async () => {
     const repsonse = await axios
@@ -68,12 +93,69 @@ function RequestRide() {
         console.log(error, "erorrrrrr");
       });
   };
+
+
+  const locationDataForForm = (orgin,destination)=>{
+    setOrginLocationPropPassedDataforForm(orgin)
+    setDestinationLocationPropPassedDataforForm(destination)
+  }
+
+  useEffect(()=>{
+
+    const UserDeaultAddressFetch = async()=>{
+
+      await axios.get("api/user/user-default-address",{
+        headers:{
+          Authorization: `Bearer ${userAccessToken}`
+        }
+      }).then((response)=>{
+        if(response.status === 200){
+          console.log("default address")
+          console.log(response.data,"default address")
+          const { latitude, longitude } = response.data;
+
+          setUserSelectDefaultAddressData({
+            geometry : {
+              coordinates : [longitude,latitude]
+            }
+          })
+
+        }else{
+          console.log(" address failed")
+        }
+      }).catch((error)=>{
+        console.log("error address :" ,error)
+      })
+  
+    }
+    UserDeaultAddressFetch()
+  
+
+  },[])
+
+  const handleUserSelectDeaultAddress = () => {
+ 
+    setUserSelectDefaultAddress((prev)=>!prev)
+
+  };
+
+  const handleScheduleForLatterModalOpen = ()=>{
+    IssetModalOpen(true)
+  }
+
+  const handleScheduleForLatterModalClose = ()=>{
+    IssetModalOpen(false)
+  
+  }
+
+
+
   return (
     <>
       <Navbar />
-      <div className="container" style={{ display: "flex" }}>
-        <div className="left" style={{ width: "700px", paddingTop: "20px", marginRight: "60px",marginLeft:0 }}>
-          <MapComponent />
+      <div className="containerFluid" style={{ display: "flex" }}>
+        <div className="left" style={{ width: "600px", paddingTop: "20px", marginRight: "60px",marginLeft:0 }}>
+          <MapComponent  locationDataForForm = {locationDataForForm} userSelectDefaultAddress = {userSelectDefaultAddress} userSelectDefaultAddressData={userSelectDefaultAddressData}/>
           {/* <MapComponent showNearByDriverFunction={handleShowNearByDrivers} /> */}
         </div>
   
@@ -100,9 +182,29 @@ function RequestRide() {
               >
                 Make your ride
               </Typography>
-              {/* <Typography color="text.secondary">
+
+              <Typography color="text.secondary">
+                Set default address as  starting point
+
+              {/* <Stack
+                  direction="row"
+                  alignItems="center"
+                  justifyContent="space-between"
+                  sx={{ px: 2, py: 1, bgcolor: 'background.default' }}
+                > */}
+                {/* <Chip
+                  // label={active ? 'Active account' : 'Inactive account'}
+                  // color={active ? 'success' : 'default'}
+                  size="small"
+                /> */}
+                {/* <Switch onClick={handleUserSelectDeaultAddress} /> */}
+                {userSelectDefaultAddress ?
+                 ( <button onClick={handleUserSelectDeaultAddress}>true</button>):
+                 (<button onClick={handleUserSelectDeaultAddress}>false</button>)}
+              {/* </Stack> */}
+
               </Typography>
-   */}
+  
               <div style={{ margin: "10px" }}>
                 <Box
                   sx={{
@@ -115,7 +217,7 @@ function RequestRide() {
                   <Box component="form" >
                     <TextField
                       margin="normal"
-                      
+                      value={OrginLocationPropPassedDataforForm ? OrginLocationPropPassedDataforForm.name : " "}
                       fullWidth
                       id="from"
                       label="from"
@@ -128,14 +230,15 @@ function RequestRide() {
                     <TextField
                       margin="normal"
                       fullWidth
+                      value={DestinationLocationPropPassedDataforForm ? DestinationLocationPropPassedDataforForm.name : " "}
                       name="destination"
                       label="destination"
                       type="destination"
+                      autoFocus
                       id="destination"
                       autoComplete="current-password"
                       InputProps={{ readOnly: true }}
                     />
-  
                     <Button
                       type="submit"
                       fullWidth
@@ -145,19 +248,32 @@ function RequestRide() {
                     >
                       Start
                     </Button>
+                    <Button
+                      type="submit"
+                      fullWidth
+                      variant="contained"
+                      sx={{ mt: 1, mb: 2 }}
+                      style={{backgroundColor:"#000"}}
+                      onClick={handleScheduleForLatterModalOpen}
+                    >
+                      {ismodalOpen && (
+                      <NestedModal ismodalOpen ={ismodalOpen}  closeModal={handleScheduleForLatterModalClose} />
+                    )}
+                      schedule ride for latte
+                    </Button>
+                    
                   </Box>
                 </Box>
               </div>
             </CardContent>
             <CardActions>
-              <Button size="small">Learn More</Button>
             </CardActions>
           </Card>
           <div>
             <h3>Click here to see Nearby drivers</h3>
             <button
               style={{ backgroundColor: "#000" }}
-              // onClick={handleShowNearByDrivers}
+              onClick={handleShowNearByDrivers}
             >
               Show Drivers
             </button>
@@ -168,26 +284,116 @@ function RequestRide() {
   );
                 }
 
+
+
+const style = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  pt: 2,
+  px: 4,
+  pb: 3,
+};
+
+function ChildModal() {
+  const [open, setOpen] = React.useState(false);
+  const handleOpen = () => {
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  return (
+    <React.Fragment>
+      <Button onClick={handleOpen}>Open Child Modal</Button>
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="child-modal-title"
+        aria-describedby="child-modal-description"
+      >
+        <Box sx={{ ...style, width: 200 }}>
+          <h2 id="child-modal-title">Text in a child modal</h2>
+          <p id="child-modal-description">
+            Lorem ipsum, dolor sit amet consectetur adipisicing elit.
+          </p>
+          <Button onClick={handleClose}>Close Child Modal</Button>
+        </Box>
+      </Modal>
+    </React.Fragment>
+  );
+}
+
+export default function NestedModal() {
+  const [open, setOpen] = React.useState(false);
+  const handleOpen = () => {
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  return (
+    <div>
+      <Button onClick={handleOpen}>Open modal</Button>
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="parent-modal-title"
+        aria-describedby="parent-modal-description"
+      >
+        <Box sx={{ ...style, width: 400 }}>
+          <h2 id="parent-modal-title">Text in a modal</h2>
+          <p id="parent-modal-description">
+            Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
+          </p>
+          <ChildModal />
+        </Box>
+      </Modal>
+    </div>
+  );
+}
+
 export default RequestRide;
 
 export const MapComponent = (props) => {
+
+  const {locationDataForForm ,userSelectDefaultAddress,userSelectDefaultAddressData} = props
+  const [originLocation, setOriginLocation] = useState(null);
+  const [destinationLocation, setDestinationLocation] = useState(null);
+
+
+
+
+
+  // console.log(originLocation)
+  // console.log(destinationLocation)
+
+
+  const sentLocationDataToForm = ()=>{
+    locationDataForForm(originLocation,destinationLocation)
+    console.log(originLocation,"ORGIN LOCATION")
+  }
 
   
   useEffect(() => {
     mapboxgl.accessToken =
       "pk.eyJ1IjoiYWhhbW1lZHJpaGFuY20iLCJhIjoiY2xuc2x5cHpyMWx4NjJ2cGYzcTl5czgyZSJ9.86pNM73M4mvOfyaDjOJ4ZA";
+
+      const defaultStartingPoint = [76.4901, 9.9425176];
     const map = new mapboxgl.Map({
       container: "map",
       style: "mapbox://styles/mapbox/streets-v12",
-      center: [76.4901, 9.9425176],
+      center: defaultStartingPoint,
       zoom: 13,
     });
-    // map.addControl(
-    //   new MapboxDirections({
-    //     accessToken : mapboxgl.accessToken,
-    //   }),
-    //   "top-left"
-    // );
+   
 
     const directions = new MapboxDirections({
       accessToken: mapboxgl.accessToken,
@@ -200,20 +406,40 @@ export const MapComponent = (props) => {
 
     map.addControl(directions, "top-left");
     directions.on("route", (e) => {
-      const origin = directions.getOrigin();
+      // let origin;
+      // if (props.userSelectDefaultAddress){
+      //   origin  = props.userSelectDefaultAddressData;
+      //   console.log(origin,"INSIDE THE IF CONDITION ")
+
+      // }else{
+      //   origin = directions.getOrigin();
+      //   console.log(origin,"INDEISE")
+        
+      // }
+      console.log(userSelectDefaultAddress ,"hhhhhh")
+      const origin = userSelectDefaultAddress ? userSelectDefaultAddressData : directions.getOrigin()
+       
+      console.log(origin,"this is the orgin")
       const destination = directions.getDestination();
+      console.log("destination",destination)
+
+    const fromCoordinates = origin ? origin.geometry.coordinates : defaultStartingPoint;
+
+
 
       if (origin && origin.geometry && origin.geometry.coordinates) {
         console.log("From:", origin.geometry.coordinates);
-        geocodeLocation(origin.geometry.coordinates);
+        geocodeLocation(origin.geometry.coordinates,setOriginLocation);
       }
 
       if (destination &&destination.geometry &&destination.geometry.coordinates
       ) {
         console.log("To:", destination.geometry.coordinates);
-        geocodeLocation(destination.geometry.coordinates);
+        geocodeLocation(destination.geometry.coordinates,setDestinationLocation);
       }
+      
     });
+    
 
     const  drivers =[{"long":" 10.023286","lat":" 76.311371"},{"lat":"76.49010000000000000000","long":"9.78270000000000000000 "}]
    
@@ -240,12 +466,13 @@ export const MapComponent = (props) => {
     })
 
   })
+ 
     return () => {
       map.remove();
     };
 
    
-  }, []);
+  }, [userSelectDefaultAddress]);
 
 
   // useEffect(()=>{
@@ -254,21 +481,44 @@ export const MapComponent = (props) => {
 
   // },[])
 
-  const geocodeLocation = (coordinates) => {
-    fetch(
-      `https://api.mapbox.com/geocoding/v5/mapbox.places/${coordinates[0]},${coordinates[1]}.json?access_token=${mapboxgl.accessToken}`
-    )
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.features && data.features.length > 0) {
-          const locationName = data.features[0].place_name;
-          const hello = data;
-          console.log("Location Name:", locationName);
-          console.log("data:", hello);
-        }
-      })
-      .catch((error) => console.error("Geocoding Error:", error));
-  };
+
+    const geocodeLocation = (coordinates,setLocation) => {
+      fetch(
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${coordinates[0]},${coordinates[1]}.json?access_token=${mapboxgl.accessToken}`
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.features && data.features.length > 0) {
+            const locationName = data.features[0].place_name;
+  
+            const splitData = locationName.split(", ");
+            const name = splitData[0];
+            const street = splitData[1];
+            const city = splitData[2];
+            const state = splitData[3];
+            const postalCode = splitData[4];
+    
+            // Update the state with the trimmed and split data
+            setLocation({
+              name,
+              street,
+              city,
+              state,
+              postalCode,
+            });
+              
+
+          
+          }
+        })
+        .catch((error) => console.error("Geocoding Error:", error));
+    };
+
+    useEffect(()=>{
+      sentLocationDataToForm ()
+    },[originLocation,destinationLocation])
+
+ 
 
   return (
     <div>
@@ -276,41 +526,3 @@ export const MapComponent = (props) => {
     </div>
   );
 };
-
-
-
-// const UserMapProfile = (props)=>{
-//   return(
-//     <>
-//     <Card>
-//   <Box sx={{ p: 2, display: 'flex' }}>
-//     <Avatar variant="rounded" src="avatar.jpg" />
-//     <Stack spacing={0.5}>
-//       <Typography fontWeight="bold">{props.driver.lat}</Typography>  
-//       <Typography variant="body2" color="text.secondary">
-//       <LocationOn sx={{color: grey[500]}} /> Scranton, PA, United States
-//       </Typography>
-//     </Stack>
-//     <IconButton size="small">
-//       <Edit fontSize="small" />
-//     </IconButton>
-//   </Box>
-//   <Divider />
-//   <Stack
-//     direction="row"
-//     alignItems="center"
-//     justifyContent="space-between"
-//     sx={{ px: 2, py: 1, bgcolor: 'background.default' }}
-//   >
-//     <Chip
-//       label={active ? 'Active account' : 'Inactive account'}
-//       color={active ? 'success' : 'default'}
-//       size="small"
-//     />
-//     <Switch />
-//   </Stack>
-// </Card>
-
-//     </>
-//   )
-// }

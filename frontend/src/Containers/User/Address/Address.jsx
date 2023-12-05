@@ -30,6 +30,8 @@ function Address() {
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
   const [addressCount, setAddressCount] = useState(0);
   const [showAddAddressForm, setShowAddAddressForm] = useState(false);
+  const [showAddressDefaultAlert, setShowAddressDefaultAlert] = useState(false)
+
 
   useEffect(() => {
     const fetchUserAddress = async () => {
@@ -58,6 +60,12 @@ function Address() {
     setShowDeleteAlert(true);
     setAddressCount(addressCount - 1);
   };
+
+  const handleOnDefault =()=>{
+    setAddressCount(addressCount +1);
+    setShowAddressDefaultAlert(true)
+
+  }
 
   const handleAddAddressClick = () => {
     setShowAddAddressForm(true);
@@ -92,6 +100,13 @@ function Address() {
           </Alert>
         )}
 
+        {showAddressDefaultAlert &&(
+           <Alert severity="success" onClose={() => setShowAddressDefaultAlert(false)}>
+           <AlertTitle>Success</AlertTitle>
+           New Address Set as Deafult successfully!
+         </Alert>
+        )}
+
         {userAddress && !showAddAddressForm && (
           <Button
             onClick={handleAddAddressClick}
@@ -121,6 +136,7 @@ function Address() {
           <BasicTable
             userAddress={userAddress}
             onDelete={handleOnDelete}
+            onDefault = {handleOnDefault}
             accessToken={userAccessToken}
           />
         )}
@@ -133,7 +149,7 @@ export default Address;
 
 export function BasicTable(props) {
   const { accessToken, userAddress } = props;
-  const handleVehicleDelete = async (addressId) => {
+  const handleAddressDelete = async (addressId) => {
     const response = await axios
       .post(
         `api/user/address/delete/${addressId}/`,
@@ -155,6 +171,29 @@ export function BasicTable(props) {
         console.log(error, "errror");
       });
   };
+
+
+  
+  const handleAddressDefault = async (AddressId)=>{
+    const response = await axios.patch(`api/driver/driver/profile/set-default-address/${AddressId}/`,{},{
+      headers:{
+        Authorization: `Bearer ${accessToken}`
+      }
+    }).then((response)=>{ 
+      if (response.status ===202){
+        props.onDefault();
+        console.log("default succewss")
+      }else{
+        console.log("default fail")
+      }
+    })
+
+  }
+
+
+
+
+
   return (
     <TableContainer component={Paper}>
       <Table
@@ -203,6 +242,14 @@ export function BasicTable(props) {
             <TableCell
               align="center"
               sx={{ color: "#6f6975", fontWeight: "bold" }}
+            >Delete</TableCell>
+            <TableCell
+              align="center"
+              sx={{ color: "#6f6975", fontWeight: "bold" }}
+            >Status</TableCell>
+            <TableCell
+              align="center"
+              sx={{ color: "#6f6975", fontWeight: "bold" }}
             ></TableCell>
           </TableRow>
         </TableHead>
@@ -241,42 +288,29 @@ export function BasicTable(props) {
                     aria-label="delete"
                     size="small"
                     style={{ color: "red" }}
-                    onClick={() => handleVehicleDelete(address.id)}
+                    onClick={() => handleAddressDelete(address.id)}
                   >
                     <DeleteIcon fontSize="inherit" />
                   </IconButton>
                 </Stack>
               </TableCell>
+
+              { address.default === true ? 
+         <TableCell align="center" ><Button variant="contained" color="success" style={{backgroundColor:"#2ccc21"}} onClick={()=>handleAddressDefault(address.id)}>
+          Default
+         </Button>
+         </TableCell> :
+         <TableCell align="center" >
+         <Button variant="outlined" color="error" style={{borderBlockColor:"red",color:"red",border:"none"}}  onClick={()=>handleAddressDefault(address.id)}>
+         Set Default
+        </Button>
+        </TableCell>
+      }
+
             </TableRow>
           ))}
         </TableBody>
       </Table>
     </TableContainer>
   );
-}
-
-{
-  /*      
-        {userAddress ? (
-         
-        ) : (
-         
-        )} */
-}
-
-{
-  /* {userAddress && !showAddAddressForm && (
-              <div>
-                 <Button onClick={handleAddAddressClick} style={{ margin:"10px"}}>Add Vehicle</Button>
-            </div>
-             )}
-            {showAddVehicleForm  ? (
-              <>
-               <Button onClick={handleAddVehicleClickFalse} style={{ marginLeft:"400px"}}>Back To Table</Button>
-              <AddVehicle storeDetails={driverStoreDataFetch} onAddVehicle={handleAddVehicleAlert}  /> 
-              </>
-              ):
-              (
-                 userVehicle &&<CollapsibleTable userVehicle={userVehicle} accessToken = {accessToken} onDelete={handleOnDelete} driverId={driverId} onDefault={handleDefault}  />
-              )} */
 }
