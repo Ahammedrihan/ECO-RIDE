@@ -41,10 +41,25 @@ import IconButton from '@mui/material/IconButton';
 import Edit from '@mui/icons-material/Edit';
 import Chip from '@mui/material/Chip';
 import Switch from '@mui/material/Switch';
-import NestedModal from "../../../Components/User/ScheduleRide";
 
 
 import Modal from '@mui/material/Modal';
+import NestedModal from "../../../Components/User/ScheduleRide";
+
+
+const style = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  pt: 2,
+  px: 4,
+  pb: 3,
+};
 
 
 
@@ -65,7 +80,6 @@ function RequestRide() {
     }
   })
   const [userSelectDefaultAddress,setUserSelectDefaultAddress] = useState(false)
-
   const [ismodalOpen,IssetModalOpen] = useState(false)
 
 
@@ -78,11 +92,6 @@ function RequestRide() {
       })
       .then((response) => {
         if (response.status === 200) {
-          console.log("sucess");
-          console.log(response);
-
-          console.log(response.data);
-          console.log(JSON.stringify(response.data));
           setActiveDrivers(JSON.stringify(response.data));
           setActiveDriversTrue(true);
         } else {
@@ -93,12 +102,6 @@ function RequestRide() {
         console.log(error, "erorrrrrr");
       });
   };
-
-
-  const locationDataForForm = (orgin,destination)=>{
-    setOrginLocationPropPassedDataforForm(orgin)
-    setDestinationLocationPropPassedDataforForm(destination)
-  }
 
   useEffect(()=>{
 
@@ -133,10 +136,14 @@ function RequestRide() {
 
   },[])
 
+  const locationDataForForm = (orgin,destination)=>{
+    setOrginLocationPropPassedDataforForm(orgin)
+    setDestinationLocationPropPassedDataforForm(destination)
+  }
+
   const handleUserSelectDeaultAddress = () => {
  
     setUserSelectDefaultAddress((prev)=>!prev)
-
   };
 
   const handleScheduleForLatterModalOpen = ()=>{
@@ -148,15 +155,12 @@ function RequestRide() {
   
   }
 
-
-
   return (
     <>
       <Navbar />
       <div className="containerFluid" style={{ display: "flex" }}>
         <div className="left" style={{ width: "600px", paddingTop: "20px", marginRight: "60px",marginLeft:0 }}>
           <MapComponent  locationDataForForm = {locationDataForForm} userSelectDefaultAddress = {userSelectDefaultAddress} userSelectDefaultAddressData={userSelectDefaultAddressData}/>
-          {/* <MapComponent showNearByDriverFunction={handleShowNearByDrivers} /> */}
         </div>
   
         <div className="right" style={{ paddingTop: "20px" }}>
@@ -165,7 +169,7 @@ function RequestRide() {
               borderColor: "black",
               borderWidth: "2px",
               borderStyle: "solid",
-              width: "350px", // Adjust the width as needed
+              width: "350px",
               borderRadius:"20px"
             }}
           >
@@ -254,16 +258,23 @@ function RequestRide() {
                       variant="contained"
                       sx={{ mt: 1, mb: 2 }}
                       style={{backgroundColor:"#000"}}
-                      onClick={handleScheduleForLatterModalOpen}
-                    >
-                      {ismodalOpen && (
-                      <NestedModal ismodalOpen ={ismodalOpen}  closeModal={handleScheduleForLatterModalClose} />
-                    )}
-                      schedule ride for latte
+                      onClick={((e)=>{
+                         e.preventDefault()
+                         handleScheduleForLatterModalOpen()
+                      })}
+                    > { ismodalOpen &&(<div>
+                      <NestedModal/>
+                    </div>)}
+                  set
                     </Button>
                     
                   </Box>
                 </Box>
+         
+                    
+
+
+
               </div>
             </CardContent>
             <CardActions>
@@ -286,80 +297,42 @@ function RequestRide() {
 
 
 
-const style = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: 400,
-  bgcolor: 'background.paper',
-  border: '2px solid #000',
-  boxShadow: 24,
-  pt: 2,
-  px: 4,
-  pb: 3,
-};
 
-function ChildModal() {
-  const [open, setOpen] = React.useState(false);
-  const handleOpen = () => {
-    setOpen(true);
-  };
-  const handleClose = () => {
-    setOpen(false);
-  };
 
-  return (
-    <React.Fragment>
-      <Button onClick={handleOpen}>Open Child Modal</Button>
-      <Modal
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="child-modal-title"
-        aria-describedby="child-modal-description"
-      >
-        <Box sx={{ ...style, width: 200 }}>
-          <h2 id="child-modal-title">Text in a child modal</h2>
-          <p id="child-modal-description">
-            Lorem ipsum, dolor sit amet consectetur adipisicing elit.
-          </p>
-          <Button onClick={handleClose}>Close Child Modal</Button>
-        </Box>
-      </Modal>
-    </React.Fragment>
-  );
-}
+// function ChildModal() {
+//   const [open, setOpen] = React.useState(false);
+//   const handleOpen = () => {
+//     setOpen(true);
+//   };
+//   const handleClose = () => {
+//     setOpen(false);
+//   };
 
-export default function NestedModal() {
-  const [open, setOpen] = React.useState(false);
-  const handleOpen = () => {
-    setOpen(true);
-  };
-  const handleClose = () => {
-    setOpen(false);
-  };
+//   return (
+//     <React.Fragment>
+//       <Button onClick={handleOpen}>Open Child Modal</Button>
+//       <Modal
+//         open={ismodalOpen}
+//         onClose={handleScheduleForLatterModalClose}
+//         aria-labelledby="child-modal-title"
+//         aria-describedby="child-modal-description"
+//       >
+//         <Box sx={{ ...style, width: 200 }}>
+//           <h2 id="child-modal-title">Text in a child modal</h2>
+//           <p id="child-modal-description">
+//             Lorem ipsum, dolor sit amet consectetur adipisicing elit.
+//           </p>
+//           <Button onClick={handleScheduleForLatterModalClose}>Close Child Modal</Button>
+//         </Box>
+//       </Modal>
+//     </React.Fragment>
+//   );
+// }
 
-  return (
-    <div>
-      <Button onClick={handleOpen}>Open modal</Button>
-      <Modal
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="parent-modal-title"
-        aria-describedby="parent-modal-description"
-      >
-        <Box sx={{ ...style, width: 400 }}>
-          <h2 id="parent-modal-title">Text in a modal</h2>
-          <p id="parent-modal-description">
-            Duis mollis, est non commodo luctus, nisi erat porttitor ligula.
-          </p>
-          <ChildModal />
-        </Box>
-      </Modal>
-    </div>
-  );
-}
+ 
+ 
 
+    
 export default RequestRide;
 
 export const MapComponent = (props) => {
