@@ -9,59 +9,28 @@ import Typography from "@mui/material/Typography";
 import "./RequestRide.css";
 import axios from "../../../Utils/axios";
 import { useSelector } from "react-redux";
-
-import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
-import Link from "@mui/material/Link";
-import Grid from "@mui/material/Grid";
-
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import Container from "@mui/material/Container";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { Navigate, useNavigate } from "react-router-dom";
-import jwt_decode from "jwt-decode";
-import Swal from "sweetalert2";
-
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import Divider from "@mui/material/Divider";
-import ListItemText from "@mui/material/ListItemText";
-import ListItemAvatar from "@mui/material/ListItemAvatar";
-import Avatar from "@mui/material/Avatar";
-
 import mapboxgl from "mapbox-gl";
 import MapboxDirections from "@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions";
 import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
-
-
-import Stack from '@mui/material/Stack';
-import IconButton from '@mui/material/IconButton';
-import Edit from '@mui/icons-material/Edit';
-import Chip from '@mui/material/Chip';
-import Switch from '@mui/material/Switch';
-
-
-import Modal from '@mui/material/Modal';
 import NestedModal from "../../../Components/User/ScheduleRide";
-
+import Switch from '@mui/material/Switch';
+import Chip from '@mui/material/Chip';
+import Swal from "sweetalert2";
 
 const style = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
   width: 400,
-  bgcolor: 'background.paper',
-  border: '2px solid #000',
+  bgcolor: "background.paper",
+  border: "2px solid #000",
   boxShadow: 24,
   pt: 2,
   px: 4,
   pb: 3,
 };
-
-
 
 function RequestRide() {
   const userStoreData = useSelector((store) => store.authuser.userData);
@@ -71,24 +40,53 @@ function RequestRide() {
   const [activerDrivers, setActiveDrivers] = useState([]);
   const [activeDriversTrue, setActiveDriversTrue] = useState(false);
 
-  const [OrginLocationPropPassedDataforForm,setOrginLocationPropPassedDataforForm] = useState(null)
-  const [DestinationLocationPropPassedDataforForm,setDestinationLocationPropPassedDataforForm] = useState(null)
+  const [OrginLocationPropPassedDataforForm,setOrginLocationPropPassedDataforForm] = useState(null);
+  const [DestinationLocationPropPassedDataforForm,setDestinationLocationPropPassedDataforForm] = useState(null);
 
-  const [userSelectDefaultAddressData,setUserSelectDefaultAddressData] = useState({
-    geometry : {
-      coordinates : []
-    }
+  const [userWantToGo,setuserWantToGo] = useState({
+    from : "",
+    to : ""
   })
-  const [userSelectDefaultAddress,setUserSelectDefaultAddress] = useState(false)
-  const [ismodalOpen,IssetModalOpen] = useState(false)
+  console.log(userWantToGo,"user want ot go ****************************************")
+
+
+  const [userDefaultLatLng, setUserDefaultLatLng] = useState(null);
+  const [userSelectDefaultAddressData, setUserSelectDefaultAddressData] =
+    useState({
+      geometry: {
+        coordinates: [],
+      },
+    });
+  const [userSelectDefaultAddress, setUserSelectDefaultAddress] = useState(false);
+  const [ismodalOpen, IssetModalOpen] = useState(false);
+
+
+  useEffect(()=>{
+    if (userDefaultLatLng){
+      setuserWantToGo({
+        from: userDefaultLatLng ,
+        to: DestinationLocationPropPassedDataforForm
+      }
+      )
+    }else{
+      setuserWantToGo({
+        from: OrginLocationPropPassedDataforForm ,
+        to: DestinationLocationPropPassedDataforForm
+      })
+    }
+   
+    
+  },[OrginLocationPropPassedDataforForm,userDefaultLatLng])
 
 
   const handleShowNearByDrivers = async () => {
     const repsonse = await axios
-      .get(`api/user/nearby-drivers/${userId}/`, {
+      .post(`api/user/nearby-drivers/${userId}/`,OrginLocationPropPassedDataforForm, {
         headers: {
+          "Content-Type":"application/json",
           Authorization: `Bearer ${userAccessToken}`,
         },
+        
       })
       .then((response) => {
         if (response.status === 200) {
@@ -99,70 +97,120 @@ function RequestRide() {
         }
       })
       .catch((error) => {
-        console.log(error, "erorrrrrr");
+        console.log(error)
+        const issue = error?.repsonse.data.message
+        Swal.fire({
+          title: issue,
+          text: error?.repsonse?.status,
+          icon: 'error'
+        })
+       
       });
   };
 
-  useEffect(()=>{
 
-    const UserDeaultAddressFetch = async()=>{
 
-      await axios.get("api/user/user-default-address",{
-        headers:{
-          Authorization: `Bearer ${userAccessToken}`
-        }
-      }).then((response)=>{
-        if(response.status === 200){
-          console.log("default address")
-          console.log(response.data,"default address")
-          const { latitude, longitude } = response.data;
-
-          setUserSelectDefaultAddressData({
-            geometry : {
-              coordinates : [longitude,latitude]
-            }
-          })
-
-        }else{
-          console.log(" address failed")
-        }
-      }).catch((error)=>{
-        console.log("error address :" ,error)
-      })
-  
-    }
-    UserDeaultAddressFetch()
-  
-
-  },[])
-
-  const locationDataForForm = (orgin,destination)=>{
-    setOrginLocationPropPassedDataforForm(orgin)
-    setDestinationLocationPropPassedDataforForm(destination)
-  }
-
-  const handleUserSelectDeaultAddress = () => {
- 
-    setUserSelectDefaultAddress((prev)=>!prev)
+  const locationDataForForm = (orgin, destination) => {
+    setOrginLocationPropPassedDataforForm(orgin);
+    setDestinationLocationPropPassedDataforForm(destination);
   };
 
-  const handleScheduleForLatterModalOpen = ()=>{
-    IssetModalOpen(true)
-  }
+  const handleUserSelectDeaultAddressTurnOn = (e) => {
+    e.preventDefault();
+    setUserSelectDefaultAddress(true);
 
-  const handleScheduleForLatterModalClose = ()=>{
-    IssetModalOpen(false)
+    if (userSelectDefaultAddress){
+      const { latitude, longitude } = userDefaultLatLng;
+
+      setUserSelectDefaultAddressData({
+        geometry: {
+          coordinates: [longitude, latitude],
+        },
+      });
+      
+    };
   
-  }
+  };
+
+  const handleUserSelectDeaultAddressTurnOff = (e) => {
+    e.preventDefault();
+    setUserSelectDefaultAddress(false);
+    setUserDefaultLatLng(null)
+  };
+
+  const handleScheduleForLatterModalOpen = () => {
+    IssetModalOpen(true);
+  };
+
+  const handleScheduleForLatterModalClose = () => {
+    IssetModalOpen(false);
+  };
+
+  // const handleUserSelectDefaultAddressToggle = () => {
+  //   setUserSelectDefaultAddress((prev) => !prev);
+
+  //   if (userSelectDefaultAddress){
+  //     const { latitude, longitude } = userDefaultLatLng;
+
+  //     setUserSelectDefaultAddressData({
+  //       geometry: {
+  //         coordinates: [longitude, latitude],
+  //       },
+  //     });
+      
+  //   };
+
+  // }
+
+    useEffect(() => {
+      if (userSelectDefaultAddress){
+      const UserDeaultAddressFetch = async () => {
+        await axios
+          .get("api/user/user-default-address", {
+            headers: {
+              Authorization: `Bearer ${userAccessToken}`,
+            },
+          })
+          .then((response) => {
+            if (response.status === 200) {
+              console.log("default address");
+              console.log(response.data, "default address");
+              setUserDefaultLatLng(response.data);
+            } else {
+              console.log(" address failed");
+            }
+          })
+          .catch((error) => {
+            console.log("error address :", error);
+          });
+      };
+      UserDeaultAddressFetch();
+    }
+    }, [userSelectDefaultAddress]);
+    
+    
+
 
   return (
     <>
       <Navbar />
       <div className="containerFluid" style={{ display: "flex" }}>
-        <div className="left" style={{ width: "600px", paddingTop: "20px", marginRight: "60px",marginLeft:0 }}>
-          <MapComponent  locationDataForForm = {locationDataForForm} userSelectDefaultAddress = {userSelectDefaultAddress} userSelectDefaultAddressData={userSelectDefaultAddressData}/>
+        <div
+          className="left"
+          style={{
+            width: "600px",
+            paddingTop: "20px",
+            marginRight: "60px",
+            marginLeft: 0,
+          }}
+        >
+          <MapComponent
+            locationDataForForm={locationDataForForm}
+            userSelectDefaultAddress={userSelectDefaultAddress}
+            userSelectDefaultAddressData={userSelectDefaultAddressData}
+          />
         </div>
-  
+
         <div className="right" style={{ paddingTop: "20px" }}>
           <Card
             style={{
@@ -170,7 +218,7 @@ function RequestRide() {
               borderWidth: "2px",
               borderStyle: "solid",
               width: "350px",
-              borderRadius:"20px"
+              borderRadius: "20px",
             }}
           >
             <CardContent>
@@ -188,27 +236,53 @@ function RequestRide() {
               </Typography>
 
               <Typography color="text.secondary">
-                Set default address as  starting point
-
-              {/* <Stack
+                Set default address as starting point
+                {/* <Stack
                   direction="row"
                   alignItems="center"
                   justifyContent="space-between"
                   sx={{ px: 2, py: 1, bgcolor: 'background.default' }}
                 > */}
-                {/* <Chip
-                  // label={active ? 'Active account' : 'Inactive account'}
-                  // color={active ? 'success' : 'default'}
-                  size="small"
-                /> */}
-                {/* <Switch onClick={handleUserSelectDeaultAddress} /> */}
-                {userSelectDefaultAddress ?
-                 ( <button onClick={handleUserSelectDeaultAddress}>true</button>):
-                 (<button onClick={handleUserSelectDeaultAddress}>false</button>)}
-              {/* </Stack> */}
 
+{/* 
+              <Switch
+                      checked={userSelectDefaultAddress}
+                      onChange={handleUserSelectDefaultAddressToggle}
+                    /> */}
+                      {userSelectDefaultAddress ?(
+                         <Switch
+                         checked={userSelectDefaultAddress}
+                         onChange={handleUserSelectDeaultAddressTurnOff}
+                       />
+                      ):
+                      <Switch
+                      checked={userSelectDefaultAddress}
+                      onChange={handleUserSelectDeaultAddressTurnOn}
+                    />}    
+
+                {/* {userSelectDefaultAddress ? (
+                  <Switch onClick={handleUserSelectDeaultAddressTurnOff} />
+                ) : (
+                  <Switch onClick={handleUserSelectDeaultAddressTurnOn} />
+                )} */}
+                   <Chip
+                  label={userSelectDefaultAddress ? 'Default Address' : "Click for default address"}
+                  color={userSelectDefaultAddress ? 'success' : 'default'}
+                  size="small"
+                />
+{/* 
+                {userSelectDefaultAddress ? (
+                  <button onClick={handleUserSelectDeaultAddressTurnOff}>
+                  make flase= {userSelectDefaultAddress}
+                  </button>
+                ) : (
+                  <button onClick={handleUserSelectDeaultAddressTurnOn}>
+                    make True = {userSelectDefaultAddress}
+                  </button>
+                )} */}
+                {/* </Stack> */}
               </Typography>
-  
+
               <div style={{ margin: "10px" }}>
                 <Box
                   sx={{
@@ -218,23 +292,30 @@ function RequestRide() {
                   }}
                 >
                   <Typography component="h5" variant="h5"></Typography>
-                  <Box component="form" >
+                  <Box component="form">
                     <TextField
                       margin="normal"
-                      value={OrginLocationPropPassedDataforForm ? OrginLocationPropPassedDataforForm.name : " "}
+                      value={
+
+                        userWantToGo ? userWantToGo?.from?.name :userWantToGo?.from?.id
+                      }
                       fullWidth
                       id="from"
                       label="from"
                       name="from"
                       autoComplete="=from"
                       autoFocus
-                      style={{  borderRadius: "20px",height: "40px"  }}
+                      style={{ borderRadius: "20px", height: "40px" }}
                       InputProps={{ readOnly: true }}
                     />
                     <TextField
                       margin="normal"
                       fullWidth
-                      value={DestinationLocationPropPassedDataforForm ? DestinationLocationPropPassedDataforForm.name : " "}
+                      value={
+                        DestinationLocationPropPassedDataforForm
+                          ? DestinationLocationPropPassedDataforForm.name
+                          : " "
+                      }
                       name="destination"
                       label="destination"
                       type="destination"
@@ -248,7 +329,7 @@ function RequestRide() {
                       fullWidth
                       variant="contained"
                       sx={{ mt: 1, mb: 2 }}
-                       style={{backgroundColor:"#000"}}
+                      style={{ backgroundColor: "#000" }}
                     >
                       Start
                     </Button>
@@ -257,28 +338,25 @@ function RequestRide() {
                       fullWidth
                       variant="contained"
                       sx={{ mt: 1, mb: 2 }}
-                      style={{backgroundColor:"#000"}}
-                      onClick={((e)=>{
-                         e.preventDefault()
-                         handleScheduleForLatterModalOpen()
-                      })}
-                    > { ismodalOpen &&(<div>
-                      <NestedModal/>
-                    </div>)}
-                  set
+                      style={{ backgroundColor: "#000" }}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleScheduleForLatterModalOpen();
+                      }}
+                    >
+                      {" "}
+                      {ismodalOpen && (
+                        <div>
+                          <NestedModal />
+                        </div>
+                      )}
+                      set
                     </Button>
-                    
                   </Box>
                 </Box>
-         
-                    
-
-
-
               </div>
             </CardContent>
-            <CardActions>
-            </CardActions>
+            <CardActions></CardActions>
           </Card>
           <div>
             <h3>Click here to see Nearby drivers</h3>
@@ -293,8 +371,157 @@ function RequestRide() {
       </div>
     </>
   );
-                }
+}
 
+
+
+export default RequestRide;
+
+
+
+
+
+
+
+
+
+
+export const MapComponent = (props) => {
+  const { locationDataForForm, userSelectDefaultAddress,userSelectDefaultAddressData,} = props;
+  const [originLocation, setOriginLocation] = useState(null);
+  const [destinationLocation, setDestinationLocation] = useState(null);
+
+
+
+  useEffect(() => {
+    mapboxgl.accessToken =
+      "pk.eyJ1IjoiYWhhbW1lZHJpaGFuY20iLCJhIjoiY2xuc2x5cHpyMWx4NjJ2cGYzcTl5czgyZSJ9.86pNM73M4mvOfyaDjOJ4ZA";
+
+    const defaultStartingPoint = [76.4901, 9.9425176];
+    const map = new mapboxgl.Map({
+      container: "map",
+      style: "mapbox://styles/mapbox/streets-v12",
+      center: defaultStartingPoint,
+      zoom: 13,
+    });
+
+    const directions = new MapboxDirections({
+      accessToken: mapboxgl.accessToken,
+    });
+
+    const geocoder = new MapboxGeocoder({
+      accessToken: mapboxgl.accessToken,
+      mapboxgl: mapboxgl,
+    });
+
+    map.addControl(directions, "top-left");
+    directions.on("route", (e) => {
+      let origin;
+
+      if (userSelectDefaultAddress) {
+        origin = userSelectDefaultAddressData;
+      } else {
+        origin = directions.getOrigin();
+      }
+      const destination = directions.getDestination();
+
+      if (origin && origin.geometry && origin.geometry.coordinates) {
+        console.log("From:", origin.geometry.coordinates);
+        geocodeLocation(origin.geometry.coordinates, setOriginLocation);
+      }
+
+      if (
+        destination &&
+        destination.geometry &&
+        destination.geometry.coordinates
+      ) {
+        geocodeLocation(destination.geometry.coordinates,setDestinationLocation);
+      }
+    });
+
+    const drivers = [
+      { long: " 10.023286", lat: " 76.311371" },
+      { lat: "76.49010000000000000000", long: "9.78270000000000000000 " },
+    ];
+
+    drivers.map((driver) => {
+      const marker = new mapboxgl.Marker()
+        .setLngLat([driver.lat, driver.long])
+        .addTo(map);
+
+      const popup = new mapboxgl.Popup().setHTML(
+        `<div>
+        <UserMapProfile driver={driver}/>
+        </div>`
+      );
+
+      marker.setPopup(popup);
+      marker.getElement().addEventListener("mouseenter", () => {
+        popup.addTo(map);
+      });
+      marker.getElement().addEventListener("mouseleave", () => {
+        popup.remove();
+      });
+    });
+
+    return () => {
+      map.remove();
+    };
+  }, []);
+
+  // useEffect(()=>{
+
+  //   props.showNearByDriverFunction()
+
+  // },[])
+
+  const geocodeLocation = (coordinates, setLocation) => {
+    fetch(
+      `https://api.mapbox.com/geocoding/v5/mapbox.places/${coordinates[0]},${coordinates[1]}.json?access_token=${mapboxgl.accessToken}`
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data,"111111111111111111111111111111111111111111111111")
+        if (data.features && data.features.length > 0) {
+          const locationName = data.features[0].place_name;
+
+          const splitData = locationName.split(", ");
+          const name = splitData[0];
+          const street = splitData[1];
+          const city = splitData[2];
+          const state = splitData[3];
+          const postalCode = splitData[4];
+          const coordinates = data.query
+
+          setLocation({
+            name,
+            street,
+            city,
+            state,
+            postalCode,
+            coordinates
+          });
+        }
+      })
+      .catch((error) => console.error("Geocoding Error:", error));
+  };
+
+  useEffect(() => {
+    sentLocationDataToForm();
+  }, [originLocation, destinationLocation]);
+
+
+  const sentLocationDataToForm = () => {
+    locationDataForForm(originLocation, destinationLocation);
+  };
+
+
+  return (
+    <div>
+      <div id="map" style={{ width: "100%", height: "500px" }} />
+    </div>
+  );
+};
 
 
 
@@ -328,174 +555,3 @@ function RequestRide() {
 //     </React.Fragment>
 //   );
 // }
-
- 
- 
-
-    
-export default RequestRide;
-
-export const MapComponent = (props) => {
-
-  const {locationDataForForm ,userSelectDefaultAddress,userSelectDefaultAddressData} = props
-  const [originLocation, setOriginLocation] = useState(null);
-  const [destinationLocation, setDestinationLocation] = useState(null);
-
-
-
-
-
-  // console.log(originLocation)
-  // console.log(destinationLocation)
-
-
-  const sentLocationDataToForm = ()=>{
-    locationDataForForm(originLocation,destinationLocation)
-    console.log(originLocation,"ORGIN LOCATION")
-  }
-
-  
-  useEffect(() => {
-    mapboxgl.accessToken =
-      "pk.eyJ1IjoiYWhhbW1lZHJpaGFuY20iLCJhIjoiY2xuc2x5cHpyMWx4NjJ2cGYzcTl5czgyZSJ9.86pNM73M4mvOfyaDjOJ4ZA";
-
-      const defaultStartingPoint = [76.4901, 9.9425176];
-    const map = new mapboxgl.Map({
-      container: "map",
-      style: "mapbox://styles/mapbox/streets-v12",
-      center: defaultStartingPoint,
-      zoom: 13,
-    });
-   
-
-    const directions = new MapboxDirections({
-      accessToken: mapboxgl.accessToken,
-    });
-
-    const geocoder = new MapboxGeocoder({
-      accessToken: mapboxgl.accessToken,
-      mapboxgl: mapboxgl,
-    });
-
-    map.addControl(directions, "top-left");
-    directions.on("route", (e) => {
-      // let origin;
-      // if (props.userSelectDefaultAddress){
-      //   origin  = props.userSelectDefaultAddressData;
-      //   console.log(origin,"INSIDE THE IF CONDITION ")
-
-      // }else{
-      //   origin = directions.getOrigin();
-      //   console.log(origin,"INDEISE")
-        
-      // }
-      console.log(userSelectDefaultAddress ,"hhhhhh")
-      const origin = userSelectDefaultAddress ? userSelectDefaultAddressData : directions.getOrigin()
-       
-      console.log(origin,"this is the orgin")
-      const destination = directions.getDestination();
-      console.log("destination",destination)
-
-    const fromCoordinates = origin ? origin.geometry.coordinates : defaultStartingPoint;
-
-
-
-      if (origin && origin.geometry && origin.geometry.coordinates) {
-        console.log("From:", origin.geometry.coordinates);
-        geocodeLocation(origin.geometry.coordinates,setOriginLocation);
-      }
-
-      if (destination &&destination.geometry &&destination.geometry.coordinates
-      ) {
-        console.log("To:", destination.geometry.coordinates);
-        geocodeLocation(destination.geometry.coordinates,setDestinationLocation);
-      }
-      
-    });
-    
-
-    const  drivers =[{"long":" 10.023286","lat":" 76.311371"},{"lat":"76.49010000000000000000","long":"9.78270000000000000000 "}]
-   
-    drivers.map((driver)=>{
-
-    const marker = new mapboxgl.Marker()
-      .setLngLat([driver.lat,driver.long])
-      .addTo(map);
-
-      const popup = new mapboxgl.Popup().setHTML(
-        `<div>
-        <UserMapProfile driver={driver}/>
-        </div>`
-      );
-
-      
-
-    marker.setPopup(popup);
-    marker.getElement().addEventListener("mouseenter",()=>{
-      popup.addTo(map)
-    })
-    marker.getElement().addEventListener("mouseleave",()=>{
-      popup.remove()
-    })
-
-  })
- 
-    return () => {
-      map.remove();
-    };
-
-   
-  }, [userSelectDefaultAddress]);
-
-
-  // useEffect(()=>{
-
-  //   props.showNearByDriverFunction()
-
-  // },[])
-
-
-    const geocodeLocation = (coordinates,setLocation) => {
-      fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${coordinates[0]},${coordinates[1]}.json?access_token=${mapboxgl.accessToken}`
-      )
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.features && data.features.length > 0) {
-            const locationName = data.features[0].place_name;
-  
-            const splitData = locationName.split(", ");
-            const name = splitData[0];
-            const street = splitData[1];
-            const city = splitData[2];
-            const state = splitData[3];
-            const postalCode = splitData[4];
-    
-            // Update the state with the trimmed and split data
-            setLocation({
-              name,
-              street,
-              city,
-              state,
-              postalCode,
-            });
-              
-
-          
-          }
-        })
-        .catch((error) => console.error("Geocoding Error:", error));
-    };
-
-    useEffect(()=>{
-      sentLocationDataToForm ()
-    },[originLocation,destinationLocation])
-
- 
-
-  return (
-    <div>
-      <div id="map" style={{ width: "100%", height: "500px" }} />
-    </div>
-  );
-};

@@ -46,6 +46,7 @@ class UserRegistrationView(APIView):
     permission_classes = [AllowAny]
     def post(self,request,format=None):
         print(request.data,"beforre serialize")
+        print(request,"request")
         serializer = UserRegistrationSerializer(data=request.data)
         print(serializer,"after serialization")
         if serializer.is_valid():
@@ -331,54 +332,78 @@ class DeleteAddress(APIView):
         
 
 from math import radians, cos, sin, asin, sqrt
+import json
+
 
 
 class FindNearByDriver(APIView):
-    def get(self,request,user_id):
+    def post(self,request,user_id):
         try:
-            user = CustomUser.objects.get(id = user_id)
-            user_account = AccountInfo.objects.filter(user = user)
-            user_long = user_account[0].longitude
-            user_lat = user_account[0].latitude
+            user_starting_location_details = request.data
+            user_starting_coordinates =  request.data.get("coordinates")
 
             try:
-                drivers = CustomUser.objects.filter(role ="driver",is_driver = True,is_active=True)
-                driver_info_list = []
+                user = CustomUser.objects.get(id = user_id)
+                user_account = AccountInfo.objects.filter(user = user)
+                user_long = user_starting_coordinates[0]
+                user_lat = user_starting_coordinates[1]
 
-                def find_distance(user_lat,user_long,driver_lat,driver_long):
+                try:
+                    drivers = CustomUser.objects.filter(role ="driver",is_driver = True,is_active=True)
+                    driver_info_list = []
 
-                    user_lat = radians(user_lat)
-                    user_long = radians(user_long)
-                    driver_lat = radians(driver_lat)
-                    driver_long = radians(driver_long)
+                    def find_distance(user_lat,user_long,driver_lat,driver_long):
 
-                    dlon = user_long - driver_long
-                    dlat = user_lat - driver_lat
-                    a = sin(dlat / 2)**2 + cos(driver_lat) * cos(user_lat) * sin(dlon / 2)**2
-                    c = 2 * asin(sqrt(a)) 
-                    r = 6371
-                    return(c * r)
+                        user_lat = radians(user_lat)
+                        user_long = radians(user_long)
+                        driver_lat = radians(driver_lat)
+                        driver_long = radians(driver_long)
 
-                user_driver_diatance_array = []
-                for driver in drivers:
-                    each_driver_address  = AccountInfo.objects.filter(user=driver).first()
-                    if each_driver_address:
-                        print(each_driver_address,"jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj")
-                        print(each_driver_address.default,"dddddddddddddddddddddddddddddddddddddddddddd")
-                        print(each_driver_address.latitude,each_driver_address.longitude)
-                        a = find_distance(user_lat,user_long,each_driver_address.latitude,each_driver_address.longitude)
-                        b = {
-                            "driver_id" : each_driver_address.id,
-                            "distance": a
-                        }
-                        user_driver_diatance_array.append(b)
-                print(user_driver_diatance_array)
-                return Response(user_driver_diatance_array,status=status.HTTP_200_OK)
-            except :
-                return Response({"message":"driver address Not Found"},status=status.HTTP_404_NOT_FOUND)
+                        dlon = user_long - driver_long
+                        dlat = user_lat - driver_lat
+                        a = sin(dlat / 2)**2 + cos(driver_lat) * cos(user_lat) * sin(dlon / 2)**2
+                        c = 2 * asin(sqrt(a)) 
+                        r = 6371
+                        return(c * r)
 
+                    user_driver_diatance_array = []
+                    for driver in drivers:
+                        each_driver_address  = AccountInfo.objects.filter(user=driver).first()
+                        if each_driver_address:
+                            print(each_driver_address,"jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj")
+                            print(each_driver_address.default,"dddddddddddddddddddddddddddddddddddddddddddd")
+                            print(each_driver_address.latitude,each_driver_address.longitude)
+                            a = find_distance(user_lat,user_long,each_driver_address.latitude,each_driver_address.longitude)
+                            b = {
+                                "driver_id" : each_driver_address.id,
+                                "distance": a
+                            }
+                            user_driver_diatance_array.append(b)
+                    print(user_driver_diatance_array)
+                    return Response(user_driver_diatance_array,status=status.HTTP_200_OK)
+                except :
+                    return Response({"message":"driver address Not Found"},status=status.HTTP_404_NOT_FOUND)
+
+            except:
+                return Response({"message":"user address Not Found"},status=status.HTTP_404_NOT_FOUND)
         except:
-            return Response({"message":"user address Not Found"},status=status.HTTP_404_NOT_FOUND)
+            return Response({"message":"Enter Your Locations First"},status=status.HTTP_404_NOT_FOUND)
+
+
+
+class UserDefaultAddress(APIView):
+
+    def get(self,request):
+        user = request.user
+        try:
+            user_default_address = AccountInfo.objects.get(user_id = user,default = True)
+            serializer = AddressSerializer(user_default_address)
+            return Response(serializer.data,status=status.HTTP_200_OK)
+        except:
+            return Response({"message":"User Address Not Found"},status=status.HTTP_404_NOT_FOUND)
+        
+            
+
            
     
     

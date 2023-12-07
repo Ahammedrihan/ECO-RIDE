@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path
 from .views import UserRegistrationView, UserProfileView,UserChangePasswordView ,UserListView,DriverListView,UserBlock,LogoutView,DriverRegistrationView
-from .views import UserAddAddressView ,AddVehicleView ,UserBasicProfileView,FindNearByDriver ,DeleteAddress
+from .views import UserAddAddressView ,AddVehicleView ,UserBasicProfileView,FindNearByDriver ,DeleteAddress ,UserDefaultAddress
 
 urlpatterns = [
     path('register/',UserRegistrationView.as_view(),name ="register"),
@@ -18,7 +18,8 @@ urlpatterns = [
     path('add-vehicle/<int:user_id>/',AddVehicleView.as_view(),name = "add-vehicle"),
     path('basic-profile-fetch/<int:user_id>/',UserBasicProfileView.as_view(),name = "basic-profile-fetch"),
     path('address/delete/<int:address_id>/',DeleteAddress.as_view(),name = "address-delete"),
-    path("nearby-drivers/<int:user_id>/",FindNearByDriver.as_view())
+    path("nearby-drivers/<int:user_id>/",FindNearByDriver.as_view()),
+    path("user-default-address",UserDefaultAddress.as_view())
     
 
 ]

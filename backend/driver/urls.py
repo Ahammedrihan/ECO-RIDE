@@ -10,10 +10,5 @@ urlpatterns = [
     path("driver/default-address/<int:driver_id>/",DriverDefaultAddressView.as_view(),name = "driver-active-location"),
     path("driver/set-active-drivers/",ActiveDriverView.as_view())
 
-
-
-  
-   
-
 ]
 
