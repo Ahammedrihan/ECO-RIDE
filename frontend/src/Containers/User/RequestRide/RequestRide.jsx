@@ -17,6 +17,23 @@ import NestedModal from "../../../Components/User/ScheduleRide";
 import Switch from '@mui/material/Switch';
 import Chip from '@mui/material/Chip';
 import Swal from "sweetalert2";
+import ReactDOMServer from 'react-dom/server';
+
+import ReactDOM from 'react-dom';
+
+
+
+import Avatar from '@mui/material/Avatar';
+import Stack from '@mui/material/Stack';
+import IconButton from '@mui/material/IconButton';
+import Divider from '@mui/material/Divider';
+
+import Edit from '@mui/icons-material/Edit';
+import LocationOn from '@mui/icons-material/LocationOn';
+import { grey } from '@mui/material/colors';
+
+
+import { useNavigate } from "react-router-dom";
 
 const style = {
   position: "absolute",
@@ -33,23 +50,27 @@ const style = {
 };
 
 function RequestRide() {
+  const navigate = useNavigate()
+
   const userStoreData = useSelector((store) => store.authuser.userData);
   const userId = userStoreData.user.user_id;
   const userAccessToken = userStoreData.data.access;
-
-  const [activerDrivers, setActiveDrivers] = useState([]);
-  const [activeDriversTrue, setActiveDriversTrue] = useState(false);
-
+  const [isactiverDrivers, setIsActiveDrivers] = useState(false)
+  const [userSelectDefaultAddress, setUserSelectDefaultAddress] = useState(false);
+  const [ismodalOpen, IssetModalOpen] = useState(false);
+  const [activerDrivers, setActiveDrivers] = useState([{
+    driverId:"",
+    driverDistance : "",
+    driverLatitude : "",
+    driverLongitude : "",
+    driverVehicleDetails : ""
+  }]);
   const [OrginLocationPropPassedDataforForm,setOrginLocationPropPassedDataforForm] = useState(null);
   const [DestinationLocationPropPassedDataforForm,setDestinationLocationPropPassedDataforForm] = useState(null);
-
   const [userWantToGo,setuserWantToGo] = useState({
     from : "",
     to : ""
   })
-  console.log(userWantToGo,"user want ot go ****************************************")
-
-
   const [userDefaultLatLng, setUserDefaultLatLng] = useState(null);
   const [userSelectDefaultAddressData, setUserSelectDefaultAddressData] =
     useState({
@@ -57,10 +78,9 @@ function RequestRide() {
         coordinates: [],
       },
     });
-  const [userSelectDefaultAddress, setUserSelectDefaultAddress] = useState(false);
-  const [ismodalOpen, IssetModalOpen] = useState(false);
+ 
 
-
+ 
   useEffect(()=>{
     if (userDefaultLatLng){
       setuserWantToGo({
@@ -75,13 +95,12 @@ function RequestRide() {
       })
     }
    
-    
   },[OrginLocationPropPassedDataforForm,userDefaultLatLng])
 
 
   const handleShowNearByDrivers = async () => {
     const repsonse = await axios
-      .post(`api/user/nearby-drivers/${userId}/`,OrginLocationPropPassedDataforForm, {
+      .put(`api/user/nearby-drivers/${userId}/`,OrginLocationPropPassedDataforForm, {
         headers: {
           "Content-Type":"application/json",
           Authorization: `Bearer ${userAccessToken}`,
@@ -90,20 +109,27 @@ function RequestRide() {
       })
       .then((response) => {
         if (response.status === 200) {
-          setActiveDrivers(JSON.stringify(response.data));
-          setActiveDriversTrue(true);
+       
+          setActiveDrivers( response.data.map(driver=>({
+            driverId:driver.driver_id,
+            driverDistance : driver.distance,
+            driverLatitude : driver.latitude,
+            driverLongitude : driver.longitude,
+            driverVehicleDetails : driver.driver_vehicle,
+            
+
+          }))
+          );
+          setIsActiveDrivers(true)
+
+
         } else {
           console.log("failed");
         }
       })
       .catch((error) => {
         console.log(error)
-        const issue = error?.repsonse.data.message
-        Swal.fire({
-          title: issue,
-          text: error?.repsonse?.status,
-          icon: 'error'
-        })
+       
        
       });
   };
@@ -182,6 +208,22 @@ function RequestRide() {
           })
           .catch((error) => {
             console.log("error address :", error);
+            const reason = error.response.data.message
+            Swal.fire({
+              title : reason,
+              text : "Set default address In profile",
+              icon : "error",
+              showCancelButton: true,
+              confirmButtonColor: '#3085d6',
+              cancelButtonColor: '#d33',
+              confirmButtonText: 'Yes'
+            }).then((result)=>{
+              if(result.isConfirmed){
+                navigate('/address')
+              }else if (result.dismiss) {
+                // User clicked "Cancel" or closed the modal
+                setUserSelectDefaultAddress(false);              }
+            })
           });
       };
       UserDeaultAddressFetch();
@@ -208,6 +250,9 @@ function RequestRide() {
             locationDataForForm={locationDataForForm}
             userSelectDefaultAddress={userSelectDefaultAddress}
             userSelectDefaultAddressData={userSelectDefaultAddressData}
+            activerDrivers = {activerDrivers}
+            isactiverDrivers = {isactiverDrivers}
+            handleShowNearByDrivers = {handleShowNearByDrivers}
           />
         </div>
 
@@ -387,16 +432,22 @@ export default RequestRide;
 
 
 export const MapComponent = (props) => {
-  const { locationDataForForm, userSelectDefaultAddress,userSelectDefaultAddressData,} = props;
+  const { locationDataForForm, userSelectDefaultAddress,userSelectDefaultAddressData,activerDrivers,isactiverDrivers,handleShowNearByDrivers} = props;
   const [originLocation, setOriginLocation] = useState(null);
   const [destinationLocation, setDestinationLocation] = useState(null);
 
 
+  console.log(activerDrivers,"hello")
+  
+
+
+
 
   useEffect(() => {
+
+    
     mapboxgl.accessToken =
       "pk.eyJ1IjoiYWhhbW1lZHJpaGFuY20iLCJhIjoiY2xuc2x5cHpyMWx4NjJ2cGYzcTl5czgyZSJ9.86pNM73M4mvOfyaDjOJ4ZA";
-
     const defaultStartingPoint = [76.4901, 9.9425176];
     const map = new mapboxgl.Map({
       container: "map",
@@ -407,6 +458,14 @@ export const MapComponent = (props) => {
 
     const directions = new MapboxDirections({
       accessToken: mapboxgl.accessToken,
+      interactive: false,
+      instructions: false,
+      profileSwitcher : false,
+      profile: 'mapbox/driving', // Specify the default profile
+      // controls: {
+      //   profileSwitcher: false, // Disable the profile switcher
+      // },
+
     });
 
     const geocoder = new MapboxGeocoder({
@@ -416,6 +475,7 @@ export const MapComponent = (props) => {
 
     map.addControl(directions, "top-left");
     directions.on("route", (e) => {
+     
       let origin;
 
       if (userSelectDefaultAddress) {
@@ -439,41 +499,77 @@ export const MapComponent = (props) => {
       }
     });
 
-    const drivers = [
-      { long: " 10.023286", lat: " 76.311371" },
-      { lat: "76.49010000000000000000", long: "9.78270000000000000000 " },
-    ];
+    // const drivers = [
+    //   { long: " 10.023286", lat: " 76.311371" },
+    //   { lat: "76.49010000000000000000", long: "9.78270000000000000000 " },
+    // ]
 
-    drivers.map((driver) => {
-      const marker = new mapboxgl.Marker()
-        .setLngLat([driver.lat, driver.long])
-        .addTo(map);
+    // activerDrivers.map((driverLocation)=>{
+    //   console.log(driverLocation.driverLatitude,"SDNLSKDN;LSDKC")
+    // })
+    
+    if (isactiverDrivers){
+    
 
-      const popup = new mapboxgl.Popup().setHTML(
-        `<div>
-        <UserMapProfile driver={driver}/>
-        </div>`
-      );
+      activerDrivers.map((driver) => {
+        const marker = new mapboxgl.Marker()
+          .setLngLat([parseFloat(driver.driverLongitude), parseFloat(driver.driverLatitude)])
+          
+          .addTo(map);
+  
+  
+          // drivers.map((driver) => {
+          //   const marker = new mapboxgl.Marker()
+          //     .setLngLat([driver.lat, driver.long])
+              
+          //     .addTo(map);
 
-      marker.setPopup(popup);
-      marker.getElement().addEventListener("mouseenter", () => {
-        popup.addTo(map);
-      });
-      marker.getElement().addEventListener("mouseleave", () => {
-        popup.remove();
-      });
-    });
+
+          // const profileComponentHtml = ReactDOMServer.renderToString(<MyProfileComponent driver={driver} />);
+
+// Inside your Mapbox popup creation
+
+const container  = document.createElement('div')
+ReactDOM.render(<MyProfileComponent driver={driver} />, container);
+
+const popup = new mapboxgl.Popup().setDOMContent(container)
+             
+  
+      
+        // const popup = new mapboxgl.Popup().setHTML(
+        //   `<div>
+        // HELLO
+        //  HELL
+        //  <button>hey<button/>
+        //   </div>`
+        // );
+
+  
+        marker.setPopup(popup);
+        marker.getElement().addEventListener("mouseenter", () => {
+          popup.addTo(map);
+        });
+        marker.getElement().addEventListener("mouseenter", () => {
+          popup.remove();
+        });
+      }) 
+    
+    }
+
+    
+
+      
+
 
     return () => {
       map.remove();
     };
-  }, []);
+  
 
-  // useEffect(()=>{
+  }, [activerDrivers]);
 
-  //   props.showNearByDriverFunction()
 
-  // },[])
+
 
   const geocodeLocation = (coordinates, setLocation) => {
     fetch(
@@ -481,7 +577,6 @@ export const MapComponent = (props) => {
     )
       .then((response) => response.json())
       .then((data) => {
-        console.log(data,"111111111111111111111111111111111111111111111111")
         if (data.features && data.features.length > 0) {
           const locationName = data.features[0].place_name;
 
@@ -522,6 +617,57 @@ export const MapComponent = (props) => {
     </div>
   );
 };
+
+
+
+const MyProfileComponent = ({driver}) => {
+  return (
+    <Card style={{ width: "100%", height: "100%"}}>
+      <Box sx={{ p: 2, display: 'flex', flexDirection: 'column'}}>
+        <Avatar variant="rounded" src="avatar.jpg" />
+        <Stack>
+          <Typography  sx={{ color: "#000000" }}>
+            Vehicle: {driver.driverVehicleDetails.vehicle_brand} {driver.driverVehicleDetails.vehicle_name}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Driver Name: {driver.driverDistance}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Driver Name: {driver.driverDistance}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Seat Capacity: {driver.driverVehicleDetails.seat_capacity}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            vehicle Type: {driver.driverVehicleDetails.vehicle_type}
+          </Typography>
+          
+          <Typography variant="body2" color="text.secondary">
+            Distance from you : {driver.driverDistance} km
+          </Typography>
+        </Stack>
+      </Box>
+      <Divider />
+      <Stack
+        direction="row"
+        alignItems="center"
+        justifyContent="space-between"
+        sx={{ px: 2, py: 1, bgcolor: 'background.default' }}
+      >
+       
+<Button variant="contained" color="success" style={{width:"90px",height:"30px"}}>
+  Book 
+</Button>
+        
+      </Stack>
+    </Card>
+  );
+};
+
+
+
+
+
 
 
 

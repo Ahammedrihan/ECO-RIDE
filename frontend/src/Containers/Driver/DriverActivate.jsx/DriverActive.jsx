@@ -58,6 +58,12 @@ function DriverActive() {
         }
       }).catch((error)=>{
         console.log("error:",error)
+        const reason = error.response.data.message
+        Swal.fire({
+          title: reason,
+          text: 'Add default address in profile',
+          icon: 'error'
+        })
       })
     }
 
@@ -89,10 +95,19 @@ function DriverActive() {
 
         }).catch((error)=>{
         console.log("error:",error)
+        if (error.response){
+          const reason  = error.response.data.message
+          const status = error.status
+          if (reason == "Vehicle not found"){
+            Swal.fire({
+              title: reason,
+              text: 'Add vehicle before live',
+              icon: 'error'
+            })
+          }        
+        }
       })
-
     }
-
     const addressDeletion = async()=>{
       const response = await axios.patch(`api/driver/driver/set-active-drivers/`,userLocationData,{
          headers:{
@@ -110,10 +125,14 @@ function DriverActive() {
         }
           else{
             console.log(error)
+        
           }
 
         }).catch((error)=>{
+          
         console.log("error:",error)
+        const reson = error.response.data.message
+     
       })
 
     }
