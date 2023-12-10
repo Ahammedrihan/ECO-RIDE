@@ -51,6 +51,12 @@ class DriverActiveLocationSerializer(serializers.ModelSerializer):
 
 
 
+# <======================NEAR BY DRIVER VIEW SERIALIZER END=======================>
+
+
+# class NearByDriverSerializer(serializers.Serializer):
+
+
  
 
     

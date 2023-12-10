@@ -117,7 +117,7 @@ class VehicleInfo(models.Model):
     vehicle_image1 = models.ImageField(upload_to="vehicle_images/",default=None,blank=True, null=True)
 
     def __str__(self):
-        return f"{self.user.email}{self.vehicle_brand}"
+        return self.registration_number
     
 class ActiveDrivers(models.Model):
     user = models.ForeignKey( CustomUser,on_delete=models.CASCADE)

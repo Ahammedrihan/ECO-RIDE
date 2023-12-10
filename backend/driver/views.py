@@ -48,14 +48,11 @@ class DriverManageVehicle(APIView):
     def patch(self,request,vehicle_id,driver_id):
         try:
             vehicle = VehicleInfo.objects.get(id = vehicle_id)
-            other_vehicles = VehicleInfo.objects.exclude(id = vehicle_id)
-            if vehicle:
+            other_vehicles = VehicleInfo.objects.filter(user_id = driver_id).exclude(id = vehicle_id).update(default = False)
+
+            if vehicle :
                 vehicle.default = True
                 vehicle.save()
-                for i in other_vehicles:
-                    i.default = False
-                    i.save()
-
                 return Response({"msg":" Set default Success"},status=status.HTTP_202_ACCEPTED)
             else:
                 return Response({"error":"Vehicle not found for the specified driver and ID"},status=status.HTTP_404_NOT_FOUND)
@@ -77,15 +74,14 @@ class DriverManageAddress(APIView):
             return Response({"message":"Address Not Found"},status=status.HTTP_404_NOT_FOUND)
         
     def patch(self,request,address_id):
+        driver_id = request.user.id
         try:
             address = AccountInfo.objects.get(id = address_id)
-            other_address = AccountInfo.objects.exclude(id = address_id)
+            AccountInfo.objects.filter(user_id= driver_id).exclude(id = address_id).update(default = False)
             if address:
                 address.default = True
                 address.save()
-                for other in other_address:
-                    other.default = False
-                    other.save()
+               
                 return Response({"message":" Address Set Default Success"},status=status.HTTP_202_ACCEPTED)
             else:
                 return Response({"message":"Address Not Found"},status=status.HTTP_404_NOT_FOUND)
@@ -124,7 +120,7 @@ class DriverDefaultAddressView(APIView):
                 serializer = DriverProfileAccountInfoSerializer(default_driver_address)
                 return Response(serializer.data,status=status.HTTP_200_OK)
             except AccountInfo.DoesNotExist:
-                return Response({"message":"Driver Doenot have exisitng address"},status=status.HTTP_404_NOT_FOUND)
+                return Response({"message":"You don't have any active  address"},status=status.HTTP_404_NOT_FOUND)
         except CustomUser.DoesNotExist:
             return Response({"message":"Driver Not Found"},status=status.HTTP_404_NOT_FOUND)
 
@@ -135,14 +131,11 @@ class DriverDefaultAddressView(APIView):
 class ActiveDriverView(APIView):
     permission_classes = [IsAuthenticated]
     def post (self,request):
-     
+
         driver_present = ActiveDrivers.objects.filter(user_id =request.user.id )
-
         if driver_present:
-            return Response({"msg":"Driver Already active"},status=status.HTTP_204_NO_CONTENT)
+            return Response({"message":"Driver Already active"},status=status.HTTP_204_NO_CONTENT)
         else:
-            
-
             try:
                 user_id = request.user.id
                 active_vehicle = VehicleInfo.objects.get(user = user_id,default = True)
@@ -151,16 +144,12 @@ class ActiveDriverView(APIView):
                     print(driver_default_address.id,"hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh")
                 except:
                     pass
-
-
-
                 data = { 
                     "user":user_id,
                     "active_vehicle" : active_vehicle.id,
                     "latitude": request.data.get("latitude"),
                     "longitude": request.data.get("longitude"),
                 }
-
                 print(data)
                 if data["latitude"] and data["longitude"]:
                     data["existing_address"] = None
@@ -172,15 +161,15 @@ class ActiveDriverView(APIView):
                     return Response(serializer.data, status=status.HTTP_201_CREATED)
                 print(serializer.errors)
             except VehicleInfo.DoesNotExist:
-                return Response({"msg": "Vehicle not found"}, status=status.HTTP_404_NOT_FOUND)
+                return Response({"message": "Vehicle not found"}, status=status.HTTP_404_NOT_FOUND)
             # except AccountInfo.DoesNotExist:
             #     return Response({"msg": "Default address not found"}, status=status.HTTP_404_NOT_FOUND)
-            return Response({"msg": "Unexpected error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({"message": "Unexpected error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
     def patch(self,request):
 
         driver_id = request.user.id
         active_driver_instance = ActiveDrivers.objects.get(user_id = driver_id)
         active_driver_instance.delete()
-        return Response({"msg":"deletion sucess"},status=status.HTTP_200_OK)
+        return Response({"message":"deletion sucess"},status=status.HTTP_200_OK)
 

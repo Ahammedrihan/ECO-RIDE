@@ -3,9 +3,10 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
 from .serializers import UserRegistrationSerializer, UserLoginSerializer ,UserProfileSerializer,UserChangePasswordSerializer,UserSerializer,DriverSerializer
-from .serializers import AddressSerializer , AddVehicleSerializer ,BasicProfileSerializer
+from .serializers import AddressSerializer , AddVehicleSerializer ,BasicProfileSerializer 
+from driver.serializers import DriverProfileSerializer
 from rest_framework.generics import ListAPIView
-from .models import CustomUser, AccountInfo,VehicleInfo,Profile
+from .models import CustomUser, AccountInfo,VehicleInfo,Profile,ActiveDrivers
 from django.db.models import Q
 
 from django.contrib.auth import authenticate
@@ -337,7 +338,7 @@ import json
 
 
 class FindNearByDriver(APIView):
-    def post(self,request,user_id):
+    def put(self,request,user_id):
         try:
             user_starting_location_details = request.data
             user_starting_coordinates =  request.data.get("coordinates")
@@ -349,8 +350,7 @@ class FindNearByDriver(APIView):
                 user_lat = user_starting_coordinates[1]
 
                 try:
-                    drivers = CustomUser.objects.filter(role ="driver",is_driver = True,is_active=True)
-                    driver_info_list = []
+                    drivers = ActiveDrivers.objects.all()
 
                     def find_distance(user_lat,user_long,driver_lat,driver_long):
 
@@ -366,21 +366,23 @@ class FindNearByDriver(APIView):
                         r = 6371
                         return(c * r)
 
-                    user_driver_diatance_array = []
+                    user_driver_distance_array = []
                     for driver in drivers:
-                        each_driver_address  = AccountInfo.objects.filter(user=driver).first()
-                        if each_driver_address:
-                            print(each_driver_address,"jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj")
-                            print(each_driver_address.default,"dddddddddddddddddddddddddddddddddddddddddddd")
-                            print(each_driver_address.latitude,each_driver_address.longitude)
-                            a = find_distance(user_lat,user_long,each_driver_address.latitude,each_driver_address.longitude)
+                            driver_vehicle = VehicleInfo.objects.get(id = driver.active_vehicle_id)
+                            
+                            
+                   
+                            a = find_distance(user_lat,user_long,driver.latitude,driver.longitude)
                             b = {
-                                "driver_id" : each_driver_address.id,
-                                "distance": a
+                                "driver_id" : driver.id,
+                                "distance": a,
+                                "latitude": driver.latitude,
+                                "longitude": driver.longitude,
+                                "driver_vehicle":driver_vehicle
                             }
-                            user_driver_diatance_array.append(b)
-                    print(user_driver_diatance_array)
-                    return Response(user_driver_diatance_array,status=status.HTTP_200_OK)
+                            user_driver_distance_array.append(b)
+                    serializer = DriverProfileSerializer(user_driver_distance_array)
+                    return Response(serializer.data,status=status.HTTP_200_OK)
                 except :
                     return Response({"message":"driver address Not Found"},status=status.HTTP_404_NOT_FOUND)
 
@@ -400,7 +402,7 @@ class UserDefaultAddress(APIView):
             serializer = AddressSerializer(user_default_address)
             return Response(serializer.data,status=status.HTTP_200_OK)
         except:
-            return Response({"message":"User Address Not Found"},status=status.HTTP_404_NOT_FOUND)
+            return Response({"message":"Default Address Not Found"},status=status.HTTP_404_NOT_FOUND)
         
             
 
