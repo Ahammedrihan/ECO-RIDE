@@ -54,9 +54,38 @@ class DriverActiveLocationSerializer(serializers.ModelSerializer):
 # <======================NEAR BY DRIVER VIEW SERIALIZER END=======================>
 
 
+
+class NearByDriverAccountInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AccountInfo
+        fields = ["longitude","latitude"]
+
+class NearByDriverVehicleInfo(serializers.ModelSerializer):
+    class Meta:
+        model = VehicleInfo
+        fields = "__all__"
+
+class DriverProfileSerializer(serializers.ModelSerializer):
+    account_info = serializers.SerializerMethodField()
+
+    def get_account_info(self, obj):
+        account_info_instances = obj.account_info.all()
+        return NearByDriverAccountInfoSerializer(account_info_instances, many=True).data
+
+    vehicle_info = NearByDriverVehicleInfo(read_only=True, many=True)
+    class Meta:
+        model = CustomUser
+        fields = ["id", "vehicle_info", "account_info"]
+
+
 # class NearByDriverSerializer(serializers.Serializer):
 
 
  
 
+
+class DriverBasicInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ["id", "email", "first_name", "phone", "last_name", "is_active", "date_joined"]
     

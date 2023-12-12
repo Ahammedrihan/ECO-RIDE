@@ -141,7 +141,6 @@ class ActiveDriverView(APIView):
                 active_vehicle = VehicleInfo.objects.get(user = user_id,default = True)
                 try:
                     driver_default_address = AccountInfo.objects.get(user = user_id,default = True)
-                    print(driver_default_address.id,"hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh")
                 except:
                     pass
                 data = { 

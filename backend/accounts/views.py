@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from .serializers import UserRegistrationSerializer, UserLoginSerializer ,UserProfileSerializer,UserChangePasswordSerializer,UserSerializer,DriverSerializer
 from .serializers import AddressSerializer , AddVehicleSerializer ,BasicProfileSerializer 
-from driver.serializers import DriverProfileSerializer
+from driver.serializers import DriverProfileSerializer ,DriverBasicInfoSerializer
 from rest_framework.generics import ListAPIView
 from .models import CustomUser, AccountInfo,VehicleInfo,Profile,ActiveDrivers
 from django.db.models import Q
@@ -17,6 +17,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework import viewsets
 from rest_framework_simplejwt.tokens import RefreshToken
+from driver.serializers import DriverProfileVehicleInfo
 
 
 
@@ -333,26 +334,13 @@ class DeleteAddress(APIView):
         
 
 from math import radians, cos, sin, asin, sqrt
+
 import json
 
 
-
 class FindNearByDriver(APIView):
-    def put(self,request,user_id):
-        try:
-            user_starting_location_details = request.data
-            user_starting_coordinates =  request.data.get("coordinates")
 
-            try:
-                user = CustomUser.objects.get(id = user_id)
-                user_account = AccountInfo.objects.filter(user = user)
-                user_long = user_starting_coordinates[0]
-                user_lat = user_starting_coordinates[1]
-
-                try:
-                    drivers = ActiveDrivers.objects.all()
-
-                    def find_distance(user_lat,user_long,driver_lat,driver_long):
+    def find_distance(user_lat,user_long,driver_lat,driver_long):
 
                         user_lat = radians(user_lat)
                         user_long = radians(user_long)
@@ -366,23 +354,47 @@ class FindNearByDriver(APIView):
                         r = 6371
                         return(c * r)
 
+    def put(self,request,user_id):
+        try:
+            user_starting_location_details = request.data
+            user_starting_coordinates =  request.data.get("coordinates")
+
+            try:
+                user = CustomUser.objects.get(id = user_id)
+                user_account = AccountInfo.objects.filter(user = user)
+                user_long = user_starting_coordinates[0]
+                user_lat = user_starting_coordinates[1]
+                print(user_long,"staring point")
+                print(user_lat,"staring point")
+
+                try:
+                    drivers = ActiveDrivers.objects.all()
+
+                  
                     user_driver_distance_array = []
                     for driver in drivers:
+                            
+                            driver_basic_details = CustomUser.objects.get(id = driver.user_id)
+                            basic_info_serializer = DriverBasicInfoSerializer(driver_basic_details)
+                            driver_basic = basic_info_serializer.data
+
+                            
                             driver_vehicle = VehicleInfo.objects.get(id = driver.active_vehicle_id)
-                            
-                            
-                   
-                            a = find_distance(user_lat,user_long,driver.latitude,driver.longitude)
+                            serializer = DriverProfileVehicleInfo(driver_vehicle)
+                            vehicle = serializer.data
+                          
+                            a = self.find_distance(user_lat,user_long,driver.latitude,driver.longitude)
                             b = {
                                 "driver_id" : driver.id,
-                                "distance": a,
+                                "distance": round(a,2),
                                 "latitude": driver.latitude,
                                 "longitude": driver.longitude,
-                                "driver_vehicle":driver_vehicle
+                                "driver_vehicle":vehicle,
+                                "driver_basic":driver_basic
                             }
                             user_driver_distance_array.append(b)
-                    serializer = DriverProfileSerializer(user_driver_distance_array)
-                    return Response(serializer.data,status=status.HTTP_200_OK)
+                  
+                    return Response(user_driver_distance_array,status=status.HTTP_200_OK)
                 except :
                     return Response({"message":"driver address Not Found"},status=status.HTTP_404_NOT_FOUND)
 
@@ -390,7 +402,6 @@ class FindNearByDriver(APIView):
                 return Response({"message":"user address Not Found"},status=status.HTTP_404_NOT_FOUND)
         except:
             return Response({"message":"Enter Your Locations First"},status=status.HTTP_404_NOT_FOUND)
-
 
 
 class UserDefaultAddress(APIView):
@@ -405,9 +416,37 @@ class UserDefaultAddress(APIView):
             return Response({"message":"Default Address Not Found"},status=status.HTTP_404_NOT_FOUND)
         
             
+class UserFromToDestinationDistanceFinder(APIView):
+    def post (self,request):
+        data = request.data
+        from_latitude = data.get('from_latitude')
+        from_longitude = data.get('from_longitude')
+        to_latitude = data.get('to_latitude')
+        to_longitude = data.get('to_longitude')
+        distance = FindNearByDriver.find_distance(from_latitude,from_longitude,
+                                                         to_latitude,to_longitude)
+       
+        return Response({'distance': distance}, status=status.HTTP_200_OK)
 
-           
+
+
+
+        
+        
+
     
+    # class DistanceCalculator:
+    # def calculate_distance(lat1,lon1,lat2,lon2):
+    #     # user lat user long driver lat diver long
+
+    #     lat1,lon1,lat2,lon2 = map(radians,[lat1,lon1,lat2,lon2])
+    #     dlon = lon1 - lon2 
+    #     dlat =  lat1 -lat2 
+    #     a = sin(dlat / 2) ** 2 + cos(lat2) * cos(lat1) * sin(dlon / 2) ** 2
+    #     c = 2 * asin(sqrt(a))
+    #     r = 6371 
+    #     return c * r
+   
     
 
 
