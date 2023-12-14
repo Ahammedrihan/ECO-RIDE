@@ -339,9 +339,9 @@ import json
 
 
 class FindNearByDriver(APIView):
+    @staticmethod
 
     def find_distance(user_lat,user_long,driver_lat,driver_long):
-
                         user_lat = radians(user_lat)
                         user_long = radians(user_long)
                         driver_lat = radians(driver_lat)
@@ -369,6 +369,7 @@ class FindNearByDriver(APIView):
 
                 try:
                     drivers = ActiveDrivers.objects.all()
+                
 
                   
                     user_driver_distance_array = []
@@ -377,11 +378,13 @@ class FindNearByDriver(APIView):
                             driver_basic_details = CustomUser.objects.get(id = driver.user_id)
                             basic_info_serializer = DriverBasicInfoSerializer(driver_basic_details)
                             driver_basic = basic_info_serializer.data
+                            print(driver_basic)
 
                             
                             driver_vehicle = VehicleInfo.objects.get(id = driver.active_vehicle_id)
                             serializer = DriverProfileVehicleInfo(driver_vehicle)
                             vehicle = serializer.data
+                            print(vehicle,"VECHILE")
                           
                             a = self.find_distance(user_lat,user_long,driver.latitude,driver.longitude)
                             b = {
@@ -423,10 +426,52 @@ class UserFromToDestinationDistanceFinder(APIView):
         from_longitude = data.get('from_longitude')
         to_latitude = data.get('to_latitude')
         to_longitude = data.get('to_longitude')
-        distance = FindNearByDriver.find_distance(from_latitude,from_longitude,
+        distance_total = FindNearByDriver.find_distance(from_latitude,from_longitude,
                                                          to_latitude,to_longitude)
+        distance = round(distance_total,2)
        
         return Response({'distance': distance}, status=status.HTTP_200_OK)
+    
+
+
+class TripAmount(APIView):
+    print("aksjdlkajaklalknalkdnalkndalskd")
+  
+    RATE_PER_KM= {
+        'sedan':25,
+        'hatch':30,
+        'xuv':40
+    }
+    TAX_RATE = 18/100
+
+    def findAmount(self,each_vehicle_amount,distance):
+        amount =  each_vehicle_amount * distance["distance"]
+        tax = amount * self.TAX_RATE
+        total_amount = tax + amount
+        amount_details = {
+            'amount' :round(amount,2),
+            'tax' : round(tax,2),
+            'total_amount' :round(total_amount,2)
+        }
+        return amount_details
+
+    def post(self,request):
+
+        try:
+            data = request.data
+            driver_id  = data.get('driverId')
+            distance  = data.get('distance')
+            vehicle_type  = data.get('vehicleType')
+            rate_per_km = self.RATE_PER_KM[vehicle_type]
+            amount = self.findAmount(rate_per_km,distance)
+            # request.amount_details = amount
+            return Response(amount,status=status.HTTP_200_OK)
+        except:
+            return Response({"message":"data not received properly"},status=status.HTTP_404_NOT_FOUND)
+
+
+                  
+
 
 
 

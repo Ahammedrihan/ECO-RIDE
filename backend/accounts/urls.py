@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import path
 from .views import UserRegistrationView, UserProfileView,UserChangePasswordView ,UserListView,DriverListView,UserBlock,LogoutView,DriverRegistrationView
 from .views import UserAddAddressView ,AddVehicleView ,UserBasicProfileView,FindNearByDriver ,DeleteAddress ,UserDefaultAddress,UserFromToDestinationDistanceFinder
-
+from .views import TripAmount
 urlpatterns = [
     path('register/',UserRegistrationView.as_view(),name ="register"),
     path('driver-register/',DriverRegistrationView.as_view(),name ="driver_register"),
@@ -20,7 +20,8 @@ urlpatterns = [
     path('address/delete/<int:address_id>/',DeleteAddress.as_view(),name = "address-delete"),
     path("nearby-drivers/<int:user_id>/",FindNearByDriver.as_view()),
     path("user-default-address",UserDefaultAddress.as_view()),
-    path("user-travel-distance/",UserFromToDestinationDistanceFinder.as_view())
+    path("user-travel-distance/",UserFromToDestinationDistanceFinder.as_view()),
+    path("trip-amount/",TripAmount.as_view())
 
 
     

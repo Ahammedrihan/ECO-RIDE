@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
+from django.utils import timezone
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None,**extra_fields):
@@ -101,6 +102,8 @@ class VehicleInfo(models.Model):
     class VehicleType(models.TextChoices):
         SEDAN = "sedan", "Sedan"
         HATCHBACK = "hatch", "Hatchback"
+        XUV = "xuv","Xuv"
+
     user = models.ForeignKey(CustomUser,on_delete = models.CASCADE, related_name="vehicle_info")
     registration_number = models.CharField(max_length=10,unique=True)
     vehicle_brand = models.CharField(max_length=30)
@@ -125,6 +128,32 @@ class ActiveDrivers(models.Model):
     existing_address = models.ForeignKey(AccountInfo,on_delete=models.CASCADE, null=True,blank=True)
     latitude =models.DecimalField(max_digits=30, decimal_places=20)
     longitude =models.DecimalField(max_digits=30, decimal_places=20) 
-   
+
+
+
+
+class Trip(models.Model):
+    class PaymentMethod(models.TextChoices):
+        Payaffter = 'payafter', 'Payafter'
+        Online = 'online','Online'
+
+    user = models.ForeignKey(CustomUser,on_delete=models.DO_NOTHING,related_name='user_ride')
+    driver = models.ForeignKey(CustomUser,on_delete=models.DO_NOTHING,related_name='driver_ride')
+    vehicle = models.ForeignKey(VehicleInfo,on_delete = models.DO_NOTHING,related_name='ride_vehicle')
+    start_lat = models.DecimalField(max_digits=30,decimal_places=20)
+    start_long = models.DecimalField(max_digits=30,decimal_places=20)
+    end_lat = models.DecimalField(max_digits=30,decimal_places=20)
+    end_long = models.DecimalField(max_digits=30,decimal_places=20)
+    start_location_name = models.CharField(default=None, null=True, max_length=256)
+    end_location_name = models.CharField(default=None, null=True, max_length=256)
+    created_at = models.DateTimeField(default=timezone.now)
+    amount = models.FloatField()
+    payment_method = models.CharField(max_length=10, choices=PaymentMethod.choices)
+    razorpay_order_id = models.CharField(max_length=256,null=True,blank=True)
+    razorpay_payment_id = models.CharField(max_length=256,null=True,blank=True)
+
+
+
+
 
 
