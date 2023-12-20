@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from accounts.models import CustomUser,AccountInfo,VehicleInfo,ActiveDrivers
+from accounts.models import CustomUser,AccountInfo,VehicleInfo,Trip,ActiveDrivers,FinishedTrips
+
 
 
 
@@ -9,7 +10,7 @@ from accounts.models import CustomUser,AccountInfo,VehicleInfo,ActiveDrivers
 class DriverProfileAccountInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = AccountInfo
-        exclude = ["address"]
+        fields = "__all__"
 
 class DriverProfileVehicleInfo(serializers.ModelSerializer):
     class Meta:
@@ -17,13 +18,9 @@ class DriverProfileVehicleInfo(serializers.ModelSerializer):
         fields = "__all__"
 
 class DriverProfileSerializer(serializers.ModelSerializer):
-    account_info = serializers.SerializerMethodField()
-
-    def get_account_info(self, obj):
-        account_info_instances = obj.account_info.all()
-        return DriverProfileAccountInfoSerializer(account_info_instances, many=True).data
 
     vehicle_info = DriverProfileVehicleInfo(read_only=True, many=True)
+    account_info = DriverProfileAccountInfoSerializer(read_only=True, many=True)
     class Meta:
         model = CustomUser
         fields = ["id", "email", "first_name", "phone", "last_name", "is_active", "date_joined",  "vehicle_info", "account_info"]
@@ -43,9 +40,10 @@ class DeleteDriverSerializer(serializers.Serializer):
         fields = "__all__"
 
 class DriverActiveLocationSerializer(serializers.ModelSerializer):
+    active_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S")
     class Meta:
         model = ActiveDrivers
-        fields = "__all__"
+        fields = ['user', 'active_vehicle', 'existing_address', 'latitude', 'longitude', 'active_time']
         
 
 
@@ -58,7 +56,7 @@ class DriverActiveLocationSerializer(serializers.ModelSerializer):
 class NearByDriverAccountInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = AccountInfo
-        fields = ["longitude","latitude"]
+        fields = '__all__'
 
 class NearByDriverVehicleInfo(serializers.ModelSerializer):
     class Meta:
@@ -75,7 +73,7 @@ class DriverProfileSerializer(serializers.ModelSerializer):
     vehicle_info = NearByDriverVehicleInfo(read_only=True, many=True)
     class Meta:
         model = CustomUser
-        fields = ["id", "vehicle_info", "account_info"]
+        fields = ['id','email','first_name','phone','last_name', "vehicle_info", "account_info"]
 
 
 # class NearByDriverSerializer(serializers.Serializer):
@@ -88,4 +86,22 @@ class DriverBasicInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ["id", "email", "first_name", "phone", "last_name", "is_active", "date_joined"]
+    
+
+ 
+#-------------------------
+
+class DriverAllTripSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Trip
+        fields = "__all__"
+
+
+class FinishedTripsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FinishedTrips
+        fields = "__all__"
+
+        
+
     

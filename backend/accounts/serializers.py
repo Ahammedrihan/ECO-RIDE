@@ -1,6 +1,7 @@
 from rest_framework import serializers
-from accounts.models import CustomUser ,AccountInfo ,VehicleInfo ,Profile
+from accounts.models import CustomUser ,AccountInfo ,VehicleInfo ,Profile,FinishedTrips
 from django.contrib.auth.hashers import check_password
+from driver.serializers import DriverBasicInfoSerializer
 
 
 
@@ -79,6 +80,7 @@ class BasicProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = "__all__"
+        
 
 
 
@@ -91,10 +93,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
     profile_info = BasicProfileSerializer(read_only = True,many=True)
     class Meta:
         model = CustomUser
-        fields = ['id','email','first_name','last_name',"account_info","profile_info"]
-
-
-
+        fields = ['id','email','first_name','phone','last_name',"account_info","profile_info"]
 
 
 
@@ -123,3 +122,21 @@ class AddVehicleSerializer(serializers.ModelSerializer):
     class Meta:
         model = VehicleInfo
         fields  = "__all__"
+
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        exclude = ['profile_image']
+
+class UseAllTripVehicleInfo(serializers.ModelSerializer):
+    class Meta:
+        model = VehicleInfo
+        fields = "__all__"
+
+class UserAllTripSerializer(serializers.ModelSerializer):
+    vehicle = UseAllTripVehicleInfo( read_only=True)  
+    driver = DriverBasicInfoSerializer(read_only=True)
+
+    class Meta:
+        model = FinishedTrips
+        fields = "__all__"

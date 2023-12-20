@@ -69,7 +69,6 @@ class Profile(models.Model):
         MALE = 'M','Male'
         FEMALE = 'F', 'Female'
     gender = models.CharField(max_length=10, choices=Gender.choices)
-    about = models.TextField(null=True, default=None, blank=True)
     user = models.ForeignKey(CustomUser,on_delete=models.CASCADE, related_name="profile_info")
     dob = models.DateField(null=True, blank=True)
     age = models.IntegerField(null=True, blank=True)
@@ -128,14 +127,20 @@ class ActiveDrivers(models.Model):
     existing_address = models.ForeignKey(AccountInfo,on_delete=models.CASCADE, null=True,blank=True)
     latitude =models.DecimalField(max_digits=30, decimal_places=20)
     longitude =models.DecimalField(max_digits=30, decimal_places=20) 
-
-
-
+    active_time = models.TimeField()
+    
 
 class Trip(models.Model):
     class PaymentMethod(models.TextChoices):
         Payaffter = 'payafter', 'Payafter'
         Online = 'online','Online'
+
+    class TripStatus(models.TextChoices):
+        Pending = 'pending', 'Pending'
+        Accepted = 'accepted','Accepted'
+        Started = 'started','Started'
+        finished = 'finished','Finished'
+
 
     user = models.ForeignKey(CustomUser,on_delete=models.DO_NOTHING,related_name='user_ride')
     driver = models.ForeignKey(CustomUser,on_delete=models.DO_NOTHING,related_name='driver_ride')
@@ -151,6 +156,32 @@ class Trip(models.Model):
     payment_method = models.CharField(max_length=10, choices=PaymentMethod.choices)
     razorpay_order_id = models.CharField(max_length=256,null=True,blank=True)
     razorpay_payment_id = models.CharField(max_length=256,null=True,blank=True)
+    trip_status = models.CharField(max_length=10,default=TripStatus.Pending, choices=TripStatus.choices)
+    total_distance = models.DecimalField(max_digits=10,decimal_places=3)
+    payment_status = models.BooleanField(default = False)
+
+
+class FinishedTrips(models.Model):
+    user = models.ForeignKey(CustomUser,on_delete=models.DO_NOTHING,related_name='finish_ride_user')
+    driver = models.ForeignKey(CustomUser,on_delete=models.DO_NOTHING,related_name='finish_ride_driver')
+    vehicle = models.ForeignKey(VehicleInfo,on_delete = models.DO_NOTHING,related_name='finish_ride_vehicle')
+    start_lat = models.DecimalField(max_digits=30,decimal_places=20)
+    start_long = models.DecimalField(max_digits=30,decimal_places=20)
+    end_lat = models.DecimalField(max_digits=30,decimal_places=20)
+    end_long = models.DecimalField(max_digits=30,decimal_places=20)
+    start_location_name = models.CharField(default=None, null=True, max_length=256)
+    end_location_name = models.CharField(default=None, null=True, max_length=256)
+    created_at =  models.DateTimeField( null=True)
+    amount = models.FloatField()
+    Trip_end_time = models.DateTimeField( null=True)
+    payment_method = models.CharField(max_length=10)
+    razorpay_order_id = models.CharField(max_length=256,null=True,blank=True)
+    razorpay_payment_id = models.CharField(max_length=256,null=True,blank=True)
+    total_distance = models.DecimalField(max_digits=10,decimal_places=3)
+    payment_status = models.BooleanField(default=False)
+
+
+     
 
 
 
