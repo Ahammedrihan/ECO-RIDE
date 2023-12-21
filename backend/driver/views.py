@@ -30,6 +30,8 @@ class DriverManageVehicle(APIView):
 
     def post(self,request,vehicle_id):
         try:
+            print(vehicle_id)
+            print(request)
             vehicle = VehicleInfo.objects.get(id = vehicle_id)
             vehicle.delete()
             return Response({"message":"vehicle deleted succesfully"},status=status.HTTP_204_NO_CONTENT)

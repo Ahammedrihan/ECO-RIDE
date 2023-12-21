@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from accounts.models import CustomUser,AccountInfo,VehicleInfo,Trip,ActiveDrivers,FinishedTrips
+from accounts.models import CustomUser,AccountInfo,VehicleInfo,Trip,ActiveDrivers,FinishedTrips,Profile
 
 
 
@@ -63,17 +63,34 @@ class NearByDriverVehicleInfo(serializers.ModelSerializer):
         model = VehicleInfo
         fields = "__all__"
 
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = ['gender', 'dob', 'age', 'alternate_phone', 'profile_image']
+
+
 class DriverProfileSerializer(serializers.ModelSerializer):
     account_info = serializers.SerializerMethodField()
 
     def get_account_info(self, obj):
         account_info_instances = obj.account_info.all()
         return NearByDriverAccountInfoSerializer(account_info_instances, many=True).data
+    profile_info = serializers.SerializerMethodField()
+
+    def get_profile_info(self, obj):
+        try:
+            # Attempt to retrieve the associated Profile instance
+            profile_instance = obj.profile_info.get()
+            return ProfileSerializer(profile_instance).data
+        except Profile.DoesNotExist:
+            # Handle the case where no Profile instance is found
+            return None
+
 
     vehicle_info = NearByDriverVehicleInfo(read_only=True, many=True)
     class Meta:
         model = CustomUser
-        fields = ['id','email','first_name','phone','last_name', "vehicle_info", "account_info"]
+        fields = ['id','email','first_name','phone','last_name', "vehicle_info", "account_info","profile_info"]
 
 
 # class NearByDriverSerializer(serializers.Serializer):

@@ -9,16 +9,22 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
-
-
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCalendarAlt } from '@fortawesome/free-solid-svg-icons';
 import { Col, Row, Form, InputGroup } from 'react-bootstrap';
 
 
-
-
 function Profile() {
+
+  const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    margin:"20px",
+    bgcolor: 'background.paper',
+    boxShadow: 24,
+    p: 4,
+  };
   const [userProfileAvailable,setUserProfileAvailable] = useState(null)
   const userStoreData = useSelector((store)=> store.authuser.userData)
   const userId = userStoreData.user.user_id;
@@ -29,19 +35,49 @@ function Profile() {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+  const [profileData,setprofileData]= useState({
+    dob:"",
+    age:"",
+    gender:"",
+    alternate_phone:"",
+    user : userId
+  })
 
-  const style = {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: 400,
-    bgcolor: 'background.paper',
-    border: '2px solid #000',
-    boxShadow: 24,
-    p: 4,
-  };
+  console.log(profileData)
+
+  const handleChange =(e)=>{
+
+    const {name,value}=e.target;
+    setprofileData((prevData)=>({
+      ...prevData,
+      [name]:value
+    }))
+
+  }
+
   
+
+  const handleSubmitFormData = async(userId)=>{
+    try{
+      const response = await axios.post(`api/user/basic-profile-add/`,{profileData},{
+        headers:{
+          Authorization: `Bearer ${userAccessToken}`
+        }
+      })
+      console.log(response)
+      if (response.status ==201){
+        Swal.fire({
+          title:"Profile created Sucessfully",
+
+        })
+      }else{
+        console.error(response.data.error);
+      }
+    }catch(error){
+      console.log(error)
+    }
+    
+  }
   
 
 
@@ -74,8 +110,6 @@ function Profile() {
             }).then((result)=>{
               if (result.isConfirmed){
                 setOpen(true)
-                
-
               }
             })
 
@@ -113,23 +147,18 @@ function Profile() {
                   <Form.Group controlId="birthdate">
                     <Form.Label>Birthday</Form.Label>
                     <InputGroup>
-                      <InputGroup.Text>
-                        <FontAwesomeIcon icon={faCalendarAlt} />
-                      </InputGroup.Text>
-                      <Form.Control
-                        required
-                        type="text"
-                        name="birthdate"
-                        placeholder="mm/dd/yyyy"
-                        
-                      />
+                     <input type="date" value={profileData.dob}
+                     onChange={(e)=>handleChange(e)}
+                     name="dob"/>
                     </InputGroup>
                   </Form.Group>
                 </Col>
                 <Col sm={6} className="mb-3">
                   <Form.Group controlId="gender">
                     <Form.Label>Gender</Form.Label>
-                    <Form.Select defaultValue="0" name="gender">
+                    <Form.Select defaultValue="0" name="gender"
+                     onChange={(e)=>handleChange(e)}
+                     value={profileData.gender}>
                       <option value="">Gender</option>
                       <option value="F">Female</option>
                       <option value="M">Male</option>
@@ -141,18 +170,26 @@ function Profile() {
                 <Col onSubmit={6} className="mb-3">
                   <Form.Group controlId="age">
                     <Form.Label>Age</Form.Label>
-                    <Form.Control required type="text" placeholder="Age" name="age"  />
+                    <Form.Control required type="text" placeholder="Age" name="age" 
+                    onChange={(e)=>handleChange(e)}
+                    value={profileData.age} />
                   </Form.Group>
                 </Col>
                 <Col sm={6} className="mb-3">
                   <Form.Group controlId="phone">
                     <Form.Label>Phone</Form.Label>
-                    <Form.Control required type="number" placeholder="+12-345 678 910" name="alternate_phone" />
+                    <Form.Control required type="number" placeholder="+12-345 678 910" name="alternate_phone"
+                    onChange={(e)=>{
+                      handleChange(e)
+                    }}
+                     value={profileData.alternate_phone}/>
+                    
                   </Form.Group>
                 </Col>
               </Row>
         
           <Button onClick={handleClose}>Close</Button>
+          <Button onClick={()=>handleSubmitFormData(userId)}>submit</Button>
         </Box>
       </Modal>
     </div>:null}
@@ -162,17 +199,3 @@ function Profile() {
 
 export default Profile
 
-
-
-
-
-
-
-
-// export  function BasicModal() {
-  
-
-//   return (
-    
-//   );
-// }

@@ -6,7 +6,7 @@ import DriverHomeCarousal from '../../../Components/Driver/DriverHomeCarousal'
 
 function DriverHome() {
   return (
-    <div>DriverHome
+    <div>
       <Navbar/>
       <SecondNavbar/>
       <DriverHomeCarousal/>

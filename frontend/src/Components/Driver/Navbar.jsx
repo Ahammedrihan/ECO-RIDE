@@ -39,7 +39,7 @@ function Navbar() {
   let settings = [];
   if (driver) {
     settings = [
-      { id: 1, text: 'View', path: '/driver/profile' },
+      { id: 1, text: 'Profile', path: '/driver/profile' },
       { id: 2, text: 'Logout', path: '/driver/login' },
     ];
   } else {

@@ -22,7 +22,6 @@ import Swal from "sweetalert2";
 import { GoogleLogin } from '@react-oauth/google';
 import  { useState, useEffect } from 'react';
 import { googleLogout, useGoogleLogin } from '@react-oauth/google';
-import axiosOr from 'axios';
 import { display } from '@mui/system';
 
 
@@ -193,12 +192,13 @@ export default function SignIn() {
 export function Google() {
   const [userData,setUserData] = useState("")
     const responseMessage = (response) => {
-        
-        console.log(response);
-        console.log(response.credential);
+      if (response && response.credential){
         const data = jwt_decode(response.credential)
+        console.log(response)
+        console.log(response.credential)
         console.log(data)
-        
+      }
+      
 
     };
     const errorMessage = (error) => {

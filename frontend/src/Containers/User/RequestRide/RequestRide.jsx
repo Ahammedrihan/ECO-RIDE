@@ -19,6 +19,8 @@ import Chip from '@mui/material/Chip';
 import Swal from "sweetalert2";
 import ReactDOMServer from 'react-dom/server';
 
+
+
 import ReactDOM from 'react-dom';
 
 
@@ -33,7 +35,11 @@ import LocationOn from '@mui/icons-material/LocationOn';
 import { grey } from '@mui/material/colors';
 
 
+
 import { useNavigate } from "react-router-dom";
+
+import { SwipePOP } from "./swipe";
+
 
 const style = {
   position: "absolute",
@@ -63,8 +69,10 @@ function RequestRide() {
     driverDistance : "",
     driverLatitude : "",
     driverLongitude : "",
-    driverVehicleDetails : ""
+    driverVehicleDetails : "",
+    driverBasicDetails : ""
   }]);
+  console.log(activerDrivers)
   const [OrginLocationPropPassedDataforForm,setOrginLocationPropPassedDataforForm] = useState(null);
   const [DestinationLocationPropPassedDataforForm,setDestinationLocationPropPassedDataforForm] = useState(null);
   const [userWantToGo,setuserWantToGo] = useState({
@@ -116,6 +124,7 @@ function RequestRide() {
             driverLatitude : driver.latitude,
             driverLongitude : driver.longitude,
             driverVehicleDetails : driver.driver_vehicle,
+            driverBasicDetails : driver.driver_basic
             
 
           }))
@@ -171,6 +180,8 @@ function RequestRide() {
   const handleScheduleForLatterModalClose = () => {
     IssetModalOpen(false);
   };
+
+
 
   // const handleUserSelectDefaultAddressToggle = () => {
   //   setUserSelectDefaultAddress((prev) => !prev);
@@ -238,7 +249,7 @@ function RequestRide() {
       <Navbar />
       <div className="containerFluid" style={{ display: "flex" }}>
         <div
-          className="left"
+          className="left-parent"
           style={{
             width: "600px",
             paddingTop: "20px",
@@ -253,10 +264,12 @@ function RequestRide() {
             activerDrivers = {activerDrivers}
             isactiverDrivers = {isactiverDrivers}
             handleShowNearByDrivers = {handleShowNearByDrivers}
+            userAccessToken = {userAccessToken}
+            userId={userId}
           />
         </div>
 
-        <div className="right" style={{ paddingTop: "20px" }}>
+        <div className="right-parent " style={{ paddingTop: "20px" }}>
           <Card
             style={{
               borderColor: "black",
@@ -370,16 +383,15 @@ function RequestRide() {
                       InputProps={{ readOnly: true }}
                     />
                     <Button
-                      type="submit"
                       fullWidth
                       variant="contained"
                       sx={{ mt: 1, mb: 2 }}
                       style={{ backgroundColor: "#000" }}
+                      onClick={handleShowNearByDrivers}
                     >
-                      Start
+                      Choose driver
                     </Button>
-                    <Button
-                      type="submit"
+                    {/* <Button
                       fullWidth
                       variant="contained"
                       sx={{ mt: 1, mb: 2 }}
@@ -396,22 +408,22 @@ function RequestRide() {
                         </div>
                       )}
                       set
-                    </Button>
+                    </Button> */}
                   </Box>
                 </Box>
               </div>
             </CardContent>
             <CardActions></CardActions>
           </Card>
-          <div>
+          {/* <div>
             <h3>Click here to see Nearby drivers</h3>
             <button
               style={{ backgroundColor: "#000" }}
-              onClick={handleShowNearByDrivers}
+              
             >
               Show Drivers
             </button>
-          </div>
+          </div> */}
         </div>
       </div>
     </>
@@ -432,14 +444,65 @@ export default RequestRide;
 
 
 export const MapComponent = (props) => {
-  const { locationDataForForm, userSelectDefaultAddress,userSelectDefaultAddressData,activerDrivers,isactiverDrivers,handleShowNearByDrivers} = props;
+  const { locationDataForForm, userSelectDefaultAddress,userSelectDefaultAddressData,activerDrivers,isactiverDrivers,handleShowNearByDrivers,userAccessToken,userId } = props;
   const [originLocation, setOriginLocation] = useState(null);
   const [destinationLocation, setDestinationLocation] = useState(null);
+  const [distance,setDistance]= useState(null)
+
+  console.log(distance,"HEY THIS IS THE DISTANCE")
+  console.log(destinationLocation,"destinationLocation")
+
+
+  
+  useEffect(()=>{
+
+    if (originLocation && destinationLocation){
+      const from_longitude = originLocation.coordinates[0]
+      const from_latitude = originLocation.coordinates[1]
+  
+      const to_longitude = destinationLocation.coordinates[0]
+      const to_latitude = destinationLocation.coordinates[1]
+      
+      const UserDistanceData = {
+        from_latitude :from_latitude,
+        from_longitude :from_longitude,
+        to_latitude : to_latitude,
+        to_longitude :to_longitude,
+      }
+    
+
+
+    const TravelDistance = async()=>{
+      await axios.post('api/user/user-travel-distance/',UserDistanceData,{
+        headers:{
+          Authorization: `Bearer ${userAccessToken}`
+        }
+      }).then((response)=>{
+        if (response.status == 200){
+          setDistance(response.data)
+        }else{
+          console.log(" not distance fetched")
+        }
+      }).catch((error)=>{
+        console.log("error",error)
+      })
+    }
+    
+    TravelDistance() 
+  }
+  },[originLocation,destinationLocation])
+
+
+
+
+
+
+
 
 
   console.log(activerDrivers,"hello")
   
-
+  console.log(originLocation,"ORGIN LOCATION ")
 
 
 
@@ -462,10 +525,7 @@ export const MapComponent = (props) => {
       instructions: false,
       profileSwitcher : false,
       profile: 'mapbox/driving', // Specify the default profile
-      // controls: {
-      //   profileSwitcher: false, // Disable the profile switcher
-      // },
-
+     
     });
 
     const geocoder = new MapboxGeocoder({
@@ -494,65 +554,34 @@ export const MapComponent = (props) => {
         destination &&
         destination.geometry &&
         destination.geometry.coordinates
+        
       ) {
+        console.log( destination.geometry.coordinates,"hayyyy")
         geocodeLocation(destination.geometry.coordinates,setDestinationLocation);
       }
     });
 
-    // const drivers = [
-    //   { long: " 10.023286", lat: " 76.311371" },
-    //   { lat: "76.49010000000000000000", long: "9.78270000000000000000 " },
-    // ]
+  
 
-    // activerDrivers.map((driverLocation)=>{
-    //   console.log(driverLocation.driverLatitude,"SDNLSKDN;LSDKC")
-    // })
-    
     if (isactiverDrivers){
-    
-
       activerDrivers.map((driver) => {
         const marker = new mapboxgl.Marker()
           .setLngLat([parseFloat(driver.driverLongitude), parseFloat(driver.driverLatitude)])
-          
           .addTo(map);
-  
-  
-          // drivers.map((driver) => {
-          //   const marker = new mapboxgl.Marker()
-          //     .setLngLat([driver.lat, driver.long])
-              
-          //     .addTo(map);
 
+    const container  = document.createElement('div')
+    ReactDOM.render(<MyProfileComponent driver={driver} distance={distance} originLocation={originLocation} destinationLocation={destinationLocation} userAccessToken={userAccessToken} userId={userId}/>, container);
 
-          // const profileComponentHtml = ReactDOMServer.renderToString(<MyProfileComponent driver={driver} />);
-
-// Inside your Mapbox popup creation
-
-const container  = document.createElement('div')
-ReactDOM.render(<MyProfileComponent driver={driver} />, container);
-
-const popup = new mapboxgl.Popup().setDOMContent(container)
-             
-  
+    const popup = new mapboxgl.Popup().setDOMContent(container)
       
-        // const popup = new mapboxgl.Popup().setHTML(
-        //   `<div>
-        // HELLO
-        //  HELL
-        //  <button>hey<button/>
-        //   </div>`
-        // );
-
-  
-        marker.setPopup(popup);
-        marker.getElement().addEventListener("mouseenter", () => {
-          popup.addTo(map);
-        });
-        marker.getElement().addEventListener("mouseenter", () => {
-          popup.remove();
-        });
-      }) 
+            marker.setPopup(popup);
+            marker.getElement().addEventListener("mouseenter", () => {
+              popup.addTo(map);
+            });
+            marker.getElement().addEventListener("mouseenter", () => {
+              popup.remove();
+            });
+          }) 
     
     }
 
@@ -620,8 +649,22 @@ const popup = new mapboxgl.Popup().setDOMContent(container)
 
 
 
-const MyProfileComponent = ({driver}) => {
-  return (
+const MyProfileComponent = (props) => {
+  const {driver,distance,originLocation,destinationLocation,userAccessToken,userId} = props
+  console.log(distance,"ASDFGHJKLKJHGFDDFGHJHGF")
+
+  const [isSwipePopUp,setisSwipePopUp] = useState(false)
+
+  const handleSwipePopUp = ()=>{
+    setisSwipePopUp(true)
+  }
+
+  const handleCloseSwipePopUp = ()=>{
+    setisSwipePopUp(false)
+  }
+
+
+  return ( 
     <Card style={{ width: "100%", height: "100%"}}>
       <Box sx={{ p: 2, display: 'flex', flexDirection: 'column'}}>
         <Avatar variant="rounded" src="avatar.jpg" />
@@ -643,8 +686,9 @@ const MyProfileComponent = ({driver}) => {
           </Typography>
           
           <Typography variant="body2" color="text.secondary">
-            Distance from you : {driver.driverDistance} km
+            Distance from you : {distance ? distance.distance :""}
           </Typography>
+          
         </Stack>
       </Box>
       <Divider />
@@ -655,49 +699,15 @@ const MyProfileComponent = ({driver}) => {
         sx={{ px: 2, py: 1, bgcolor: 'background.default' }}
       >
        
-<Button variant="contained" color="success" style={{width:"90px",height:"30px"}}>
+<Button variant="contained" color="success" style={{width:"90px",height:"30px"}} onClick={handleSwipePopUp}>
   Book 
 </Button>
+{isSwipePopUp && <SwipePOP onClose={handleCloseSwipePopUp} driver={driver} distance={distance} 
+    originLocation={originLocation} destinationLocation={destinationLocation} userAccessToken={userAccessToken} userId={userId}/>}
+
         
       </Stack>
     </Card>
   );
 };
 
-
-
-
-
-
-
-
-
-// function ChildModal() {
-//   const [open, setOpen] = React.useState(false);
-//   const handleOpen = () => {
-//     setOpen(true);
-//   };
-//   const handleClose = () => {
-//     setOpen(false);
-//   };
-
-//   return (
-//     <React.Fragment>
-//       <Button onClick={handleOpen}>Open Child Modal</Button>
-//       <Modal
-//         open={ismodalOpen}
-//         onClose={handleScheduleForLatterModalClose}
-//         aria-labelledby="child-modal-title"
-//         aria-describedby="child-modal-description"
-//       >
-//         <Box sx={{ ...style, width: 200 }}>
-//           <h2 id="child-modal-title">Text in a child modal</h2>
-//           <p id="child-modal-description">
-//             Lorem ipsum, dolor sit amet consectetur adipisicing elit.
-//           </p>
-//           <Button onClick={handleScheduleForLatterModalClose}>Close Child Modal</Button>
-//         </Box>
-//       </Modal>
-//     </React.Fragment>
-//   );
-// }

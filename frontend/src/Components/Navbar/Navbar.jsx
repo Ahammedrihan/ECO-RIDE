@@ -16,6 +16,7 @@ import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import Store from "../../../Redux/store/store";
 import { useDispatch } from 'react-redux';
+import axios from "../../Utils/axios";
 
 import { selectUser,userLogout } from "../../../Redux/slices/userSlice/authSlice";
 
@@ -24,10 +25,16 @@ const pages = ["Register", "Pricing", "Blog"];
 function Navbar() {
 
   const user = useSelector(selectUser);
+  console.log("user",user)
+  const dispatch = useDispatch()
+  let refresh_token
+  let accesstoken
+  
+
   if(user){
-    const refresh_token = user.data.refresh
-    const accesstoken = user.data.access
-    const dispatch = useDispatch()
+     refresh_token = user.data.refresh
+     accesstoken = user.data.access
+    
   }
 
 

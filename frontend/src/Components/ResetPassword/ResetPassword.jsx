@@ -11,29 +11,23 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-// import { signup } from '../../../Utils/urls';
-// import Swal from "sweetalert2";
-// import axios from '../../../Utils/axios';
 import { useNavigate } from 'react-router-dom';
 import {useState} from 'react';
 import { useForm } from "react-hook-form";
-import axios from '../../../Utils/axios';
-import  UserProfileSideBar  from '../../../Components/User/UserProfileSidebar';
+import axios from '../../Utils/axios';
 import { display } from '@mui/system';
-import { resetPassword } from '../../../Utils/urls';
-import {useSelector} from  'react-redux'
+import Swal from "sweetalert2";
 
 
 const theme = createTheme();
+export default function ResetPassword(props) {
 
-export default function ResetPassword() {
-
+  const {accessToken} = props
   const [oldPassword, setOldPassword] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const navigate = useNavigate();
   const {register,handleSubmit,formState:{errors},watch}=useForm()
-  const accessToken = useSelector((state) => state.authuser.userData);
   
   const onSubmit = (event) => {
     const formData = {
@@ -41,12 +35,7 @@ export default function ResetPassword() {
       new_password: password,
       new_password2: confirmPassword
     };
-    console.log(formData,"form data")
-    console.log(oldPassword)
-    console.log(formData.old_password)
-  
-     
-    
+
     Swal.fire({
       title: 'Are you sure?',
       text: 'Confirm to change Password',
@@ -57,17 +46,14 @@ export default function ResetPassword() {
       confirmButtonText: 'Yes'
     }).then((result) => {
       if (result.isConfirmed) {
-        const token = accessToken.data.access
-      console.log(token,"token")
+
+      const token = accessToken.data.access
       const data = JSON.stringify( formData)
-  
       const headers = {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`
       
       };
-
-      console.log(headers)
         axios.post("/api/user/reset-password/",data, {
           headers:headers })
           .then((response) => {
@@ -77,7 +63,6 @@ export default function ResetPassword() {
                 text: 'The user details have been updated.',
                 icon: 'success'
               }).then(() => {
-                // redirect to login after success
                 console.log("helloooo")
                 navigate('/')
                 
@@ -86,7 +71,6 @@ export default function ResetPassword() {
               console.log(response.error)
               
               Swal.fire({
-                
                 title: 'Error!',
                 text: 'Invalid Details',
                 icon: 'error'
@@ -109,9 +93,6 @@ export default function ResetPassword() {
 
   return (
     <>
-
-    <div style={{display :"flex"}}>
-    <UserProfileSideBar/>
     <ThemeProvider theme={theme}>
       <Container component="main" maxWidth="xs">
         <CssBaseline />
@@ -124,9 +105,8 @@ export default function ResetPassword() {
           }}
         >
           <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-            
           </Avatar>
-          <Typography component="h1" variant="h5">
+          <Typography component="h1" variant="h5" style={{backgroundColor:"black"}}>
             Reset PassWord
           </Typography>
           <Box component="form"  onSubmit={handleSubmit(onSubmit)} sx={{ mt: 3 }}>
@@ -134,7 +114,6 @@ export default function ResetPassword() {
 
             <Grid item xs={12}>
                 <TextField
-                  
                   fullWidth
                   name="password"
                   label=" Old Password"
@@ -145,18 +124,10 @@ export default function ResetPassword() {
                   onChange={(e) => {
                     setOldPassword(e.target.value);
                         }}
-           
                 />
-                
-
               </Grid>
-
-              
-            
-
               <Grid item xs={12}>
                 <TextField
-                  
                   fullWidth
                   name="password"
                   label="New Password"
@@ -174,9 +145,7 @@ export default function ResetPassword() {
                     minLength: 5,
                   })}
                 />
-                
                 {errors.password && errors.password.type === "required" && (
-                 
                   <p className="text-xs italic text-red-500">
                     Enter a Valid Password
                   </p>
@@ -221,7 +190,6 @@ export default function ResetPassword() {
                     </p>
                   )}
               </Grid>
-            
             </Grid>
             <Button
               type="submit"
@@ -233,14 +201,12 @@ export default function ResetPassword() {
             </Button>
             <Grid container justifyContent="flex-end">
               <Grid item>
-                
               </Grid>
             </Grid>
           </Box>
         </Box>
       </Container>
     </ThemeProvider>
-    </div>
     </>
   );
 }

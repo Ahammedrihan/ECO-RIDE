@@ -2,21 +2,183 @@ import React , {useState, useEffect} from 'react'
 import ProfilePage from '../../../Components/Profile/ProfilePage'
 import {driverProfile} from "../../../Utils/urls"
 import {useSelector} from "react-redux"
+import axios from '../../../Utils/axios'
+import Swal from 'sweetalert2'
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import Modal from '@mui/material/Modal';
+import { Col, Row, Form, InputGroup } from 'react-bootstrap';
+import {basicProfileUrl} from '../../../Utils/urls'
 
 
 function DriverProfile() {
+  
+  const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    margin:"20px",
+    bgcolor: 'background.paper',
+    boxShadow: 24,
+    p: 4,
+  };
 
   const driverStoreData = useSelector((state) => state.driverauth.driverData);
   const driverId = driverStoreData.driver.user_id;
   const driverAccessToken = driverStoreData.data.access;
-  
   const path = `${driverProfile}${driverId}/`;
+  const [open, setOpen] = React.useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+  const [profileData,setprofileData]= useState({
+    dob:"",
+    age:"",
+    gender:"",
+    alternate_phone:"",
+    user : driverId
+  })
+
+  const handleChange = (e)=>{
+    const {name,value}=e.target;
+    setprofileData((prevData)=>({
+      ...prevData,
+      [name]:value
+    }))
+  }
+
+  const handleSubmitFormData = async(driverId)=>{
+    try{
+      const response = await axios.post(`api/user/basic-profile-add/`,
+      {profileData},{
+        headers:{
+          Authorization: `Bearer ${driverAccessToken}`
+        }
+      })
+      if (response.status ==201){
+        Swal.fire({
+          title:"Profile created Sucessfully",
+        })
+      }else{
+        console.error(response.data.error);
+      }
+    }catch(error){
+      console.log(error)
+    }
+  }
+
+  useEffect(()=>{
+    const getBasicProfile = async(driverId)=>{
+      try{
+      const response = await axios.get(basicProfileUrl+`/${driverId}/`,{
+        headers:{
+          Authorization :  `Bearer ${driverAccessToken}`  
+        }
+      })
+        if (response.status === 204){
+          console.log("sucess",response.data)
+        }else{
+          if (response.status === 200){
+            console.log(response.data)
+            const issue = response.data.error
+            console.log(issue)
+            Swal.fire({
+              title : issue,
+              text : "Complete Your Full Profile",
+              icon: 'error',
+              showCancelButton: 'Remind me later',
+              confirmButtonColor: '#099122',
+              cancelButtonColor: '#d33',
+              confirmButtonText: 'Yes',
+              cancelButtonText: 'Remind me later'
+            }).then((result)=>{
+              if (result.isConfirmed){
+                setOpen(true)
+              }
+            })
+
+          }else{
+            console.error(response.data.error);
+          }
+        }
+    }catch(error){
+      console.log(error,"error")
+    } 
+  }
+    getBasicProfile(driverId)
+  },[])
+
+
 
 
 
   return (
     <div>
       <ProfilePage id = {driverId} accessToken = {driverAccessToken} endPoint={path}/>
+      {open ?
+      <div>
+
+
+      <Modal
+        open={open}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={style}>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+           User Basic Information
+          </Typography>
+          <Row className="align-items-center">
+                <Col sm={6} className="mb-3">
+                  <Form.Group controlId="birthdate">
+                    <Form.Label>Birthday</Form.Label>
+                    <InputGroup>
+                     <input type="date" value={profileData.dob}
+                     onChange={(e)=>handleChange(e)}
+                     name="dob"/>
+                    </InputGroup>
+                  </Form.Group>
+                </Col>
+                <Col sm={6} className="mb-3">
+                  <Form.Group controlId="gender">
+                    <Form.Label>Gender</Form.Label>
+                    <Form.Select defaultValue="0" name="gender"
+                     onChange={(e)=>handleChange(e)}
+                     value={profileData.gender}>
+                      <option value="">Gender</option>
+                      <option value="F">Female</option>
+                      <option value="M">Male</option>
+                    </Form.Select>
+                  </Form.Group>
+                </Col>
+              </Row>
+              <Row>
+                <Col onSubmit={6} className="mb-3">
+                  <Form.Group controlId="age">
+                    <Form.Label>Age</Form.Label>
+                    <Form.Control required type="text" placeholder="Age" name="age" 
+                    onChange={(e)=>handleChange(e)}
+                    value={profileData.age} />
+                  </Form.Group>
+                </Col>
+                <Col sm={6} className="mb-3">
+                  <Form.Group controlId="phone">
+                    <Form.Label>Phone</Form.Label>
+                    <Form.Control required type="number" placeholder="+12-345 678 910" name="alternate_phone"
+                    onChange={(e)=>{
+                      handleChange(e)
+                    }}
+                     value={profileData.alternate_phone}/>
+                  </Form.Group>
+                </Col>
+              </Row>
+          <Button onClick={handleClose}>Close</Button>
+          <Button onClick={()=>handleSubmitFormData(driverId)}>submit</Button>
+        </Box>
+      </Modal>
+    </div>:null}
     </div>
   )
 }
@@ -38,188 +200,6 @@ export default DriverProfile
 
 
 
-
-
-
-
-
-
-
-
-
-
-// import React, { useState } from 'react';
-// import {useSelector} from "react-redux"
-// import {
-//   MDBCol,
-//   MDBContainer,
-//   MDBRow,
-//   MDBCard,
-//   MDBCardText,
-//   MDBCardBody,
-//   MDBCardImage,
-//   MDBBtn,
-//   MDBBreadcrumb,
-//   MDBBreadcrumbItem,
-//   MDBProgress,
-//   MDBProgressBar,
-//   MDBIcon,
-//   MDBListGroup,
-//   MDBListGroupItem
-  
-// } from 'mdb-react-ui-kit';
-// import DriverSideBar from '../../../Components/Driver/driverSidebar';
-// import axios from "../../../Utils/axios"
-
-
-
-
-// export default function DriverProfile() {
-
-//   const [driverProfile,setDriverProfile] = useState(null);
-//   const driverStoreData = useSelector((state) => state.driverauth.driverData);
-//   const driver_id  = driverStoreData.driver.user_id;
-//   const driverAccessToken = driverStoreData.data.access;
-
-
-
-  
-  
-//   return (
-
-//     <section style={{ backgroundColor: '#eee' }}>
-//      <MDBContainer className="pt-5">
-//      <div style={{ display: 'flex'}}>
-//      <div className="container-fluid">
-//       <div className="row">
-//        <div className="col-md-3">
-//          <DriverSideBar />
-//        </div>
-//       <div className="col-md-9">
-  
-//         {/* <MDBRow>
-//           <MDBCol>
-//             <MDBBreadcrumb className="bg-light rounded-3 p-3 mb-4">
-//               <MDBBreadcrumbItem>
-//                 <a href='#'>Home</a>
-//               </MDBBreadcrumbItem>
-//               <MDBBreadcrumbItem>
-//                 <a href="#">User</a>
-//               </MDBBreadcrumbItem>
-//               <MDBBreadcrumbItem active>User Profile</MDBBreadcrumbItem>
-//             </MDBBreadcrumb>
-//           </MDBCol>
-//         </MDBRow> */}
-
-//         <MDBRow>
-//           <MDBCol md="6" lg="9" >
-//             <MDBCard className="mb-4">
-//               <MDBCardBody className="text-center">
-//                 <MDBCardImage
-//                   src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp"
-//                   alt="avatar"
-//                   className="rounded-circle"
-//                   style={{ width: '150px' }}
-//                   fluid />
-//                 <p className="text-muted mb-1">Full Stack =Developer</p>
-//                 <p className="text-muted mb-4">Bay Area, San Francisco, CA</p>
-//                 <div className="d-flex justify-content-center mb-2">
-//                   <MDBBtn>Edit Profile</MDBBtn>
-//                 </div>
-//               </MDBCardBody>
-//             </MDBCard>
-// {/* 
-//             <MDBCard className="mb-4 mb-lg-0">
-//               <MDBCardBody className="p-0">
-//                 <MDBListGroup flush className="rounded-3">
-//                   <MDBListGroupItem className="d-flex justify-content-between align-items-center p-3">
-//                     <MDBIcon fas icon="globe fa-lg text-warning" />
-//                     <MDBCardText>https://mdbootstrap.com</MDBCardText>
-//                   </MDBListGroupItem>
-//                   <MDBListGroupItem className="d-flex justify-content-between align-items-center p-3">
-//                     <MDBIcon fab icon="github fa-lg" style={{ color: '#333333' }} />
-//                     <MDBCardText>mdbootstrap</MDBCardText>
-//                   </MDBListGroupItem>
-//                   <MDBListGroupItem className="d-flex justify-content-between align-items-center p-3">
-//                     <MDBIcon fab icon="twitter fa-lg" style={{ color: '#55acee' }} />
-//                     <MDBCardText>@mdbootstrap</MDBCardText>
-//                   </MDBListGroupItem>
-//                   <MDBListGroupItem className="d-flex justify-content-between align-items-center p-3">
-//                     <MDBIcon fab icon="instagram fa-lg" style={{ color: '#ac2bac' }} />
-//                     <MDBCardText>mdbootstrap</MDBCardText>
-//                   </MDBListGroupItem>
-//                   <MDBListGroupItem className="d-flex justify-content-between align-items-center p-3">
-//                     <MDBIcon fab icon="facebook fa-lg" style={{ color: '#3b5998' }} />
-//                     <MDBCardText>mdbootstrap</MDBCardText>
-//                   </MDBListGroupItem>
-//                 </MDBListGroup>
-//               </MDBCardBody>
-//             </MDBCard> */}
-//           </MDBCol>
-//           <MDBCol md="6"  lg="9">
-//             <MDBCard className="mb-4">
-//               <MDBCardBody>
-//                 <MDBRow>
-//                   <MDBCol sm="3">
-//                     <MDBCardText>Full Name</MDBCardText>
-//                   </MDBCol>
-//                   <MDBCol sm="9">
-//                     <MDBCardText className="text-muted">Johnatan Smith</MDBCardText>
-//                   </MDBCol>
-//                 </MDBRow>
-//                 <hr />
-//                 <MDBRow>
-//                   <MDBCol sm="3">
-//                     <MDBCardText>Email</MDBCardText>
-//                   </MDBCol>
-//                   <MDBCol sm="9">
-//                     <MDBCardText className="text-muted">example@example.com</MDBCardText>
-//                   </MDBCol>
-//                 </MDBRow>
-//                 <hr />
-//                 <MDBRow>
-//                   <MDBCol sm="3">
-//                     <MDBCardText>Phone</MDBCardText>
-//                   </MDBCol>
-//                   <MDBCol sm="9">
-//                     <MDBCardText className="text-muted">(097) 234-5678</MDBCardText>
-//                   </MDBCol>
-//                 </MDBRow>
-//                 <hr />
-//                 <MDBRow>
-//                   <MDBCol sm="3">
-//                     <MDBCardText>Mobile</MDBCardText>
-//                   </MDBCol>
-//                   <MDBCol sm="9">
-//                     <MDBCardText className="text-muted">(098) 765-4321</MDBCardText>
-//                   </MDBCol>
-//                 </MDBRow>
-//                 <hr />
-//                 <MDBRow>
-//                   <MDBCol sm="3">
-//                     <MDBCardText>Address</MDBCardText>
-//                   </MDBCol>
-//                   <MDBCol sm="9">
-//                     <MDBCardText className="text-muted">Bay Area, San Francisco, CA</MDBCardText>
-//                   </MDBCol>
-//                 </MDBRow>
-//               </MDBCardBody>
-//             </MDBCard>
-
-           
-//           </MDBCol>
-//         </MDBRow>
-//         </div>
-     
-//       </div>
-//   </div>
-// </div>
-// </MDBContainer>
-
-
-//     </section>
-//   );
-// }
 
 
 

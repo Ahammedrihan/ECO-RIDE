@@ -3,11 +3,13 @@
     
   }
   
-  .left {
+  .left-parent {
     flex: 1 0 70%; /* Adjust as needed */
+  
+    
   }
   
-  .right {
+  .right-parent  {
     flex: 1 0 30%; /* Adjust as needed */
   }
   

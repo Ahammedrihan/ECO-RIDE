@@ -1,5 +1,4 @@
 import React, { useState ,useEffect} from 'react';
-import {useSelector} from "react-redux"
 import {
   MDBCol,
   MDBContainer,
@@ -8,12 +7,6 @@ import {
   MDBCardText,
   MDBCardBody,
   MDBCardImage,
-  MDBBtn,
-  MDBBreadcrumb,
-  MDBBreadcrumbItem,
-  MDBProgress,
-  MDBProgressBar,
-  MDBIcon,
   MDBListGroup,
   MDBListGroupItem
   
@@ -22,10 +15,9 @@ import DriverSideBar from "../Driver/driverSidebar";
 import axios from "../../Utils/axios"
 import UserProfileSideBar from '../User/UserProfileSidebar';
 
-
-
 export default function ProfilePage(props) {
   const [userData,setUserData] = useState(null)
+  console.log(userData,"userData")
   
   useEffect (()=>{
     const response = axios.get(props.endPoint,{
@@ -36,6 +28,8 @@ export default function ProfilePage(props) {
       console.log(response,"lanl;andlfknadlknflkndflkndflknad")
       if(response.status ===200){
         setUserData(response.data)
+        
+
       }
     })
   },[])
@@ -52,7 +46,7 @@ export default function ProfilePage(props) {
        </div>
       <div className="col-md-9" style={{paddingLeft:"50px"}}>
         <MDBRow>
-          <MDBCol md="6" lg="9" >
+          <MDBCol md="6" lg="12" >
             <MDBCard className="mb-4">
               <MDBCardBody className="text-center">
                 <MDBCardImage
@@ -62,14 +56,12 @@ export default function ProfilePage(props) {
                   style={{ width: '150px' }}
                   fluid />
                 <p className="text-muted mb-1" style={{fontWeight:"bold"}}>Welcome {userData?.first_name}</p>
-                <p className="text-muted mb-4">Bay Area, San Francisco, CA</p>
                 <div className="d-flex justify-content-center mb-2">
-                  <MDBBtn>Edit Profile</MDBBtn>
                 </div>
               </MDBCardBody>
             </MDBCard>
           </MDBCol>
-          <MDBCol md="6"  lg="9">
+          <MDBCol md="6"  lg="12">
             <MDBCard className="mb-4">
               <MDBCardBody>
                 <MDBRow>
@@ -98,26 +90,53 @@ export default function ProfilePage(props) {
                     <MDBCardText className="text-muted" style={{fontWeight:"bold"}}>{userData?.phone}</MDBCardText>
                   </MDBCol>
                 </MDBRow>
-                {/* <MDBRow>
+                <hr />
+                {userData?.profile_info ? 
+                <>
+                 <MDBRow>
                   <MDBCol sm="3">
-                    <MDBCardText>Mobile</MDBCardText>
+                    <MDBCardText>Gender</MDBCardText>
                   </MDBCol>
                   <MDBCol sm="9">
-                    <MDBCardText className="text-muted">(098) 765-4321</MDBCardText>
+                    <MDBCardText className="text-muted" style={{fontWeight:"bold"}}>{ userData?.profile_info?.gender === "M" ?"Male":"Female" }</MDBCardText>
                   </MDBCol>
-                </MDBRow> */}
+                </MDBRow>
                 <hr />
                 <MDBRow>
                   <MDBCol sm="3">
                     <MDBCardText>Age</MDBCardText>
                   </MDBCol>
                   <MDBCol sm="9">
-                    <MDBCardText className="text-muted" style={{fontWeight:"bold"}}>{userData?.age}</MDBCardText>
+                    <MDBCardText className="text-muted" style={{fontWeight:"bold"}}>{userData?.profile_info?.age}</MDBCardText>
                   </MDBCol>
                 </MDBRow>
+                </>:null}
               </MDBCardBody>
             </MDBCard>
-          </MDBCol>
+            </MDBCol>
+          <MDBCol md="6"  lg="12">
+            <MDBCard className="mb-4 mb-lg-0">
+               <MDBCardBody className="p-0">
+                 <MDBListGroup flush className="rounded-3">
+                   <MDBListGroupItem className=" p-3">
+                     <MDBCardText style={{fontWeight:"bold",textAlign:"center",fontSize:"30px"}}>{userData?.account_info ?userData?.account_info?.length : "0" }</MDBCardText>
+                     <MDBCardText style={{textAlign:"center"}}>Total Profile Address</MDBCardText>
+                   </MDBListGroupItem>
+                   <MDBListGroupItem className=" p-3">
+                     <MDBCardText style={{fontWeight:"bold",textAlign:"center",fontSize:"30px"}}>{userData?.ride_info ? userData?.ride_info?.length : "0" }</MDBCardText>
+                     <MDBCardText style={{textAlign:"center"}}>Total Ride History</MDBCardText>
+                   </MDBListGroupItem>
+                      <MDBListGroupItem className=" p-3">
+                     <MDBCardText style={{fontWeight:"bold",textAlign:"center",fontSize:"30px"}}>{userData?.vehicle_info?.length}</MDBCardText>
+                     <MDBCardText style={{textAlign:"center"}}>Total Profile Vehicles</MDBCardText>
+                   </MDBListGroupItem>
+
+             
+                  
+                 </MDBListGroup>
+               </MDBCardBody>
+             </MDBCard> 
+        </MDBCol>
         </MDBRow>
         </div>
       </div>
@@ -129,22 +148,3 @@ export default function ProfilePage(props) {
 }
 
 
-
- {/* <MDBRow>
-          <MDBCol>
-            <MDBBreadcrumb className="bg-light rounded-3 p-3 mb-4">
-              <MDBBreadcrumbItem>
-                <a href='#'>Home</a>
-              </MDBBreadcrumbItem>
-              <MDBBreadcrumbItem>
-                <a href="#">User</a>
-              </MDBBreadcrumbItem>
-              <MDBBreadcrumbItem active>User Profile</MDBBreadcrumbItem>
-            </MDBBreadcrumb>
-          </MDBCol>
-        </MDBRow> */}
-
-
-
-
- 

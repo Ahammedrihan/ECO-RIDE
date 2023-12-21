@@ -1,0 +1,31 @@
+.container{
+    display: flex;
+    
+    
+}
+
+.left{
+    flex: 50%;
+    margin-top: 40px;
+    padding-top: 20px;
+    margin-top: 100px ;
+
+
+
+    
+    
+
+}
+
+.right{
+    flex: 50%;
+    margin: 20px;
+    padding-top: 40px;
+    margin-top: 80px;
+}
+@media(max-width:600px){
+    .container{
+        flex-direction: column;
+    }
+}
+

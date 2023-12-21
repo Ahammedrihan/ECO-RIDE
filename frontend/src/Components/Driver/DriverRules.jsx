@@ -1,8 +1,4 @@
-import React, {useState} from 'react'
-import Container from 'react-bootstrap/Container';
-import Nav from 'react-bootstrap/Nav';
-import Navbar from 'react-bootstrap/Navbar';
-import { Link } from 'react-router-dom'; 
+import * as React from 'react';
 import Box from '@mui/material/Box';
 import Stepper from '@mui/material/Stepper';
 import Step from '@mui/material/Step';
@@ -12,48 +8,6 @@ import Button from '@mui/material/Button';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
-
-
-
-function SecondNavbar() {
-  const [isModalOpen, setModalOpen] = useState(false);
-
-  const handleModalOpen = () => {
-    setModalOpen(true);
-  };
-  const handleModalClose = ()=>{
-    setModalOpen(false);
-  }
-  return (   
-    <>
-      <style>
-        {`
-          .navbar-light .navbar-nav .nav-link.active {
-            background-color: transparent; 
-            color: #000 !important;       
-          }
-        `}
-      </style>
-      <Navbar bg="light" data-bs-theme="light">
-        <Container>
-          <Nav className="me-auto">
-            <Nav.Link as={Link}  onClick={handleModalOpen}>Rules</Nav.Link>
-            <Nav.Link href="#features">Blog</Nav.Link>
-            <Nav.Link href="#pricing">Pricing</Nav.Link>
-          </Nav>
-        </Container>
-      </Navbar>
-      {isModalOpen && <BasicModal handleModalOpen={handleModalOpen} handleModalClose ={handleModalClose}/>}
-
-    </>
-  );
-}
-
-export default SecondNavbar
-
-
-
-
 
 
 
@@ -177,19 +131,14 @@ const style = {
   p: 4,
 };
 
-export  function BasicModal({handleModalOpen,handleModalClose}) {
-  const [isModalOpen,setIsModalOpen] = useState(true)
-  const handleClose = () => {
-    setIsModalOpen(false)
-    handleModalClose()
-  };
+export default function BasicModal({ handleClose }) {
+  const [open, setOpen] = React.useState(true);
+  const handleOpen = () => setOpen(true);
 
   return (
     <div>
       <Modal
-        open={()=>{
-          handleModalOpen()
-        }}
+        open={open}
         onClose={handleClose}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
@@ -201,7 +150,7 @@ export  function BasicModal({handleModalOpen,handleModalClose}) {
           </Typography>
           <VerticalLinearStepper/>
           <Typography id="modal-modal-description" sx={{ mt: 2 }} display="flex" justifyContent="flex-end">
-          <Button variant="contained"  onClick={handleClose}>
+          <Button variant="contained" color="success" onClick={()=>handleClose()}>
             close
             </Button>
          </Typography>

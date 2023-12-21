@@ -1,0 +1,30 @@
+/* DriverHomeCarousal.css */
+
+.hello {
+    display: flex;
+    flex-direction: ; /* Default: row direction */
+  }
+  
+  .left {
+    flex: 1;
+    padding: 20px;
+    background-color: lightblue;
+  }
+  
+  .right {
+    flex: 1;
+    padding: 20px;
+    background-color: lightgreen;
+  }
+  
+  @media (max-width: 600px) {
+    .hello {
+      flex-direction: column; /* Change to column direction on smaller screens */
+    }
+  
+    .left,
+    .right {
+      flex: auto;
+    }
+  }
+  
