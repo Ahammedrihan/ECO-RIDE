@@ -23,6 +23,7 @@ from accounts.views import MyTokenObtainPairView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/admin/',include('adminapp.urls')),
     path('api/user/',include('accounts.urls')),
     path('api/driver/',include('driver.urls')),
     path('api/payment/',include('payment.urls')),
